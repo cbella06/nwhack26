@@ -1,4 +1,4 @@
-package com.example.scheduler
+package com.example.scheduler;
 
 import java.time.LocalDateTime;
 import java.util.Set;
@@ -46,10 +46,6 @@ public class Task {
 
     public UUID getId() {
         return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
     }
 
     public String getName() {
