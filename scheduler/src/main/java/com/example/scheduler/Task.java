@@ -15,7 +15,7 @@ public class Task {
     private int importance;
     // total estimated work time (in minutes)
     private int estimatedMinutes;
-    // 1 = easy, 2 = medium, 3 = hard
+    // 1–5 (5 = most complex)
     private int complexity;
     private Set<String> tags;
     // default false
