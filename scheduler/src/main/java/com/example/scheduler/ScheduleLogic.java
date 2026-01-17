@@ -1,8 +1,10 @@
 package com.example.scheduler;
 
 import java.time.LocalTime;
+import java.time.LocalDate;
+import java.util.UUID;
 
-public class ScheduleEntry {
+public class ScheduleLogic {
     class WorkingWindow {
         private LocalTime start;
         private LocalTime end;
@@ -24,23 +26,23 @@ public class ScheduleEntry {
 
     // ===== TimeSlot =====
     class TimeSlot {
-        private LocalDate date;
+//        private LocalDate date;
         private LocalTime start;
         private LocalTime end;
         private Double productivity;
 
         public TimeSlot() {}
 
-        public TimeSlot(LocalDate date, LocalTime start, LocalTime end, Double productivity) {
-            this.date = date;
+        public TimeSlot(LocalTime start, LocalTime end, Double productivity) {
+//            this.date = date;
             this.start = start;
             this.end = end;
             this.productivity = productivity;
         }
 
         // Getters and Setters
-        public LocalDate getDate() { return date; }
-        public void setDate(LocalDate date) { this.date = date; }
+//        public LocalDate getDate() { return date; }
+//        public void setDate(LocalDate date) { this.date = date; }
 
         public LocalTime getStart() { return start; }
         public void setStart(LocalTime start) { this.start = start; }
