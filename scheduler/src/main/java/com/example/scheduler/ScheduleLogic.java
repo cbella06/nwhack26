@@ -10,6 +10,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+/**
+ * Generates daily and weekly schedules based on tasks to complete and preexisting commitments.
+ */
 @Service
 public class ScheduleLogic {
     private static final int BLOCK_MINUTES = 15;

@@ -9,6 +9,9 @@ import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
+/**
+ * Service class that manages and organizes tasks
+ */
 @Service
 public class TaskManager {
 

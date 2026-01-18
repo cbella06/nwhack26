@@ -6,6 +6,10 @@ import java.time.LocalDateTime;
 import java.util.Set;
 import java.util.UUID;
 
+/**
+ * Represents a task in the system with urgency and complexity metadata.
+ * Maps to the 'tasks' table in the database.
+ */
 @Entity
 @Table(name = "tasks")
 public class Task {

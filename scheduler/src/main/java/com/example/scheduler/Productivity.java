@@ -3,6 +3,9 @@ package com.example.scheduler;
 import jakarta.persistence.Embeddable;
 import java.time.LocalTime;
 
+/**
+ * Represents the user's productivity intervals used for calculation
+ */
 @Embeddable
 public class Productivity {
     private Double morning = 1.0;

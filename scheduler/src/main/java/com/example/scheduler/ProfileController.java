@@ -13,6 +13,9 @@ import org.springframework.web.multipart.MultipartFile;
 import java.time.LocalTime;
 import java.util.List;
 
+/**
+ * Controller for user profile. Saves user data to database and handles ICS imports.
+ */
 @Controller
 public class ProfileController {
 
