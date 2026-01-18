@@ -89,11 +89,15 @@ public class Task {
         this.name = name;
     }
 
-    public String getName() { return name; }
-    public void setName(String name) { this.name = name; }
+    public LocalDateTime getDueDateTime() {
+        return dueDateTime;
+    }
 
-    public LocalDateTime getDueDateTime() { return dueDateTime; }
-    public void setDueDateTime(LocalDateTime dueDateTime) { this.dueDateTime = dueDateTime; }
+    public void setDueDateTime(String dueDateTime) {
+        LocalDate date = LocalDate.parse(dueDateTime);
+        this.dueDateTime = date.atTime(23, 59);
+
+    }
 
     public int getImportance() {
         return importance;
