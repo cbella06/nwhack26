@@ -30,24 +30,23 @@
                         View Full Weekly Schedule
                     </a>
                 </div>
-                <ul class="list-group">
-                    <li th:each="event : ${tasks}" class="list-group-item">
+                <ul class="list-group" th:if="${!#lists.isEmpty(todayEntries)}">
+                    <li th:each="entry : ${todayEntries}" class="list-group-item">
                         <div>
-                            <strong th:text="${event.title}">Event Name</strong><br>
-
+                            <strong th:text="${entry.title}">Task</strong><br>
                             <small class="text-muted">
-                                <span th:text="${event.date}">2026-01-17</span> at
-                                <span th:text="${event.startTime}">09:00</span>
+                                <span th:text="${entry.start + ' - ' + entry.end}">09:00 - 09:15</span>
+                                • <span th:text="${entry.workMinutes + ' min'}">15 min</span>
                             </small>
                         </div>
                     </li>
                 </ul>
 
-                <p th:if="${#lists.isEmpty(tasks)}" class="text-center text-muted">
+                <div th:if="${#lists.isEmpty(todayEntries)}" class="text-muted text-center mt-3">
                     No events scheduled for today.
-                </p>
+                </div>
+                </div>
             </div>
-        </div>
     </div>
 </div>
 
