@@ -47,9 +47,7 @@ public class TaskManager {
                 task.setName(name);
 
                 if (dueDateTimeStr != null && !dueDateTimeStr.isEmpty()) {
-                    task.setDueDateTime(LocalDateTime.parse(dueDateTimeStr));
-                } else {
-                    task.setDueDateTime(null);
+                    task.setDueDateTime(dueDateTimeStr);
                 }
 
                 task.setImportance(importance);
