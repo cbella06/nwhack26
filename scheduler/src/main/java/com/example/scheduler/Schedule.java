@@ -1,7 +1,6 @@
 package com.example.scheduler;
 
 import com.example.scheduler.ScheduleLogic.ScheduleEntry;
-import com.example.scheduler.ScheduleLogic.CalendarEvent;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

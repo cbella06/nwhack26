@@ -18,19 +18,20 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import com.example.scheduler.ScheduleLogic.CalendarEvent;
+import org.springframework.stereotype.Service;
 
+@Service
 public class ICSParser {
 
     /**
      * Parse an ICS file and extract calendar events
-     * @param filePath Path to the .ics file
+     * @param input InputStream of the .ics file
      * @return List of CalendarEvent objects
      */
-    public List<CalendarEvent> parseICSFile(String filePath) {
+    public List<CalendarEvent> parseICSStream(InputStream input) {
         List<CalendarEvent> events = new ArrayList<>();
 
-        try (InputStream input = new FileInputStream(filePath)) {
+        try  {
             CalendarBuilder builder = new CalendarBuilder();
             Calendar calendar = builder.build(input);
 
@@ -105,17 +106,17 @@ public class ICSParser {
     /**
      * Parse ICS file and filter events within a date range
      */
-    public List<CalendarEvent> parseICSFileForDateRange(String filePath,
-                                                        LocalDate startDate,
-                                                        LocalDate endDate) {
-        List<CalendarEvent> allEvents = parseICSFile(filePath);
-
-        // Filter events within the date range
-        return allEvents.stream()
-                .filter(event -> {
-                    LocalDate eventDate = event.getDate();
-                    return !eventDate.isBefore(startDate) && !eventDate.isAfter(endDate);
-                })
-                .toList();
-    }
+//    public List<CalendarEvent> parseICSFileForDateRange(String filePath,
+//                                                        LocalDate startDate,
+//                                                        LocalDate endDate) {
+//        List<CalendarEvent> allEvents = parseICSFile(filePath);
+//
+//        // Filter events within the date range
+//        return allEvents.stream()
+//                .filter(event -> {
+//                    LocalDate eventDate = event.getDate();
+//                    return !eventDate.isBefore(startDate) && !eventDate.isAfter(endDate);
+//                })
+//                .toList();
+//    }
 }
