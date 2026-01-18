@@ -25,20 +25,17 @@ public class MainController {
     @GetMapping("/")
     public String index(Model model) {
 
-        Iterable<Task> tasks = taskRepository.findAll();
-
-//        List<TaskTest> tasks = Arrays.asList(
-//            new TaskTest("nwHacks Pitch", "2026-01-17 10:30:00"),
-//            new TaskTest("Lunch with Team", "2026-01-17 12:30:00"),
-//            new TaskTest("Code Review", "2026-01-17 15:00:00")
-//        );
-
-        // attribute name used in HTML
-        model.addAttribute("tasks", tasks);
 
         return "index";
     };
 
+    @GetMapping("/tasks")
+    public String tasks(Model model){
+        Iterable<Task> tasks = taskRepository.findAll();
+        // attribute name used in HTML
+        model.addAttribute("tasks", tasks);
+        return "tasks";
+    }
     @GetMapping("/profile")
     public String profile() {
         return "profile";
