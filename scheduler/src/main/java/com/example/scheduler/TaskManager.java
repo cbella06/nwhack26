@@ -233,11 +233,52 @@ public class TaskManager {
     }
 
     /**
-     * Get all incomplete tasks
+     * Get all incomplete tasks sorted by priority (highest to lowest)
      */
-    public List<Task> getIncompleteTasks() {
+    public List<Task> getIncompleteTasks(UserProfile userProfile) {
+        LocalDate today = LocalDate.now();
         return tasks.stream()
                 .filter(t -> !t.isDone())
+                .sorted((t1, t2) -> {
+                    double p1 = t1.computePriority(today);
+                    double p2 = t2.computePriority(today);
+                    int comparison = Double.compare(p2, p1); // Higher priority first
+
+                    // Apply tie-breaker if priorities are equal
+                    if (comparison == 0) {
+                        comparison = applyTieBreaker(t1, t2, userProfile.getTieBreakerRule());
+                    }
+                    return comparison;
+                })
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * Apply tie-breaker when tasks have equal priority
+     */
+    private int applyTieBreaker(Task t1, Task t2, UserProfile.TieBreakerRule rule) {
+        return switch (rule) {
+            case EARLIEST_DUE -> {
+                if (t1.getDueDateTime() == null) yield 1;
+                if (t2.getDueDateTime() == null) yield -1;
+                yield t1.getDueDateTime().compareTo(t2.getDueDateTime());
+            }
+            case HIGHEST_IMPORTANCE -> Integer.compare(t2.getImportance(), t1.getImportance());
+            case SHORTEST_TASK -> Integer.compare(t1.getEstimatedMinutes(), t2.getEstimatedMinutes());
+            case LONGEST_TASK -> Integer.compare(t2.getEstimatedMinutes(), t1.getEstimatedMinutes());
+        };
+    }/**
+     * Get all incomplete tasks sorted by priority (highest to lowest)
+     */
+    public List<Task> getIncompleteTasks() {
+        LocalDate today = LocalDate.now();
+        return tasks.stream()
+                .filter(t -> !t.isDone())
+                .sorted((t1, t2) -> {
+                    double p1 = t1.computePriority(today);
+                    double p2 = t2.computePriority(today);
+                    return Double.compare(p2, p1); // Higher priority first
+                })
                 .collect(Collectors.toList());
     }
 
