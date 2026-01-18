@@ -32,12 +32,11 @@ public class MainController {
         LocalTime workStart = LocalTime.of(9, 0);
         LocalTime workEnd   = LocalTime.of(23, 0);
 
-        // TODO: convert DB calendar events into ScheduleLogic.CalendarEvent if you want blocking
-        List<CalendarEvent> blockedEvents = List.of();
+        List<CalendarEvent> blockedEvents = calendarEventRepository.findAll();
 
-        List<ScheduleLogic.ScheduleEntry> todayEntries =
+        List<CalendarEvent> todayEntries =
                 scheduleLogic.buildDailySchedule(today, workStart, workEnd, List.of(), blockedEvents);
-
+        todayEntries.addAll(calendarEventRepository.findByDate(LocalDate.now()));
         model.addAttribute("todayEntries", todayEntries);
 
         // Optional: if you still want to show raw calendar events somewhere on index.html
@@ -70,15 +69,15 @@ public class MainController {
         LocalTime workStart = LocalTime.of(9, 0);
         LocalTime workEnd   = LocalTime.of(23, 0);
 
-        List<CalendarEvent> blockedEvents = List.of();
+        List<CalendarEvent> blockedEvents = calendarEventRepository.findAll();
 
-        List<ScheduleLogic.ScheduleEntry> entries =
+        List<CalendarEvent> entries =
                 scheduleLogic.buildWeeklySchedule(weekStart, workStart, workEnd, blockedEvents);
 
-        Map<LocalDate, List<ScheduleLogic.ScheduleEntry>> entriesByDate =
+        Map<LocalDate, List<CalendarEvent>> entriesByDate =
                 entries.stream()
                         .collect(Collectors.groupingBy(
-                                ScheduleLogic.ScheduleEntry::getDate,
+                               CalendarEvent::getDate,
                                 LinkedHashMap::new,
                                 Collectors.toList()
                         ));

@@ -1,6 +1,5 @@
 package com.example.scheduler;
 
-import com.example.scheduler.ScheduleLogic.ScheduleEntry;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -29,14 +28,14 @@ public class Schedule {
      * Generate complete schedule for display on the schedule page
      * For MVP: uses hardcoded work hours (can be parameterized later)
      */
-    public List<ScheduleEntry> generateWeeklySchedule(
+    public List<CalendarEvent> generateWeeklySchedule(
             LocalDate startDate,
             int days,
             LocalTime workStart,
             LocalTime workEnd,
             List<CalendarEvent> blockedEvents) {
 
-        List<ScheduleEntry> allEntries = new ArrayList<>();
+        List<CalendarEvent> allEntries = new ArrayList<>();
 
         // Get prioritized tasks from TaskManager
         List<Task> prioritizedTasks = taskManager.getIncompleteTasks();
@@ -45,7 +44,7 @@ public class Schedule {
         for (int i = 0; i < days; i++) {
             LocalDate currentDate = startDate.plusDays(i);
 
-            List<ScheduleEntry> dailyEntries = scheduleLogic.buildDailySchedule(
+            List<CalendarEvent> dailyEntries = scheduleLogic.buildDailySchedule(
                     currentDate,
                     workStart,
                     workEnd,
@@ -62,7 +61,7 @@ public class Schedule {
     /**
      * Generate schedule for a single day
      */
-    public List<ScheduleEntry> generateDailySchedule(
+    public List<CalendarEvent> generateDailySchedule(
             LocalDate date,
             LocalTime workStart,
             LocalTime workEnd,
@@ -82,7 +81,7 @@ public class Schedule {
     /**
      * Generate schedule for the next 7 days with default work hours (9am-5pm)
      */
-    public List<ScheduleEntry> generateDefaultWeeklySchedule(List<CalendarEvent> blockedEvents) {
+    public List<CalendarEvent> generateDefaultWeeklySchedule(List<CalendarEvent> blockedEvents) {
         return generateWeeklySchedule(
                 LocalDate.now(),
                 7,
@@ -95,7 +94,7 @@ public class Schedule {
     /**
      * Get schedule entries for a specific date (for daily view)
      */
-    public List<ScheduleEntry> getScheduleForDate(List<ScheduleEntry> allEntries, LocalDate date) {
+    public List<CalendarEvent> getScheduleForDate(List<CalendarEvent> allEntries, LocalDate date) {
         return allEntries.stream()
                 .filter(e -> e.getDate().equals(date))
                 .toList();
@@ -104,7 +103,7 @@ public class Schedule {
     /**
      * Get schedule entries for a date range (for weekly view)
      */
-    public List<ScheduleEntry> getScheduleForRange(List<ScheduleEntry> allEntries,
+    public List<CalendarEvent> getScheduleForRange(List<CalendarEvent> allEntries,
                                                    LocalDate startDate,
                                                    LocalDate endDate) {
         return allEntries.stream()
@@ -115,10 +114,10 @@ public class Schedule {
     /**
      * Get schedule grouped by date (useful for calendar-style display)
      */
-    public Map<LocalDate, List<ScheduleEntry>> getScheduleByDate(List<ScheduleEntry> allEntries) {
-        Map<LocalDate, List<ScheduleEntry>> grouped = new TreeMap<>();
+    public Map<LocalDate, List<CalendarEvent>> getScheduleByDate(List<CalendarEvent> allEntries) {
+        Map<LocalDate, List<CalendarEvent>> grouped = new TreeMap<>();
 
-        for (ScheduleEntry entry : allEntries) {
+        for (CalendarEvent entry : allEntries) {
             grouped.computeIfAbsent(entry.getDate(), k -> new ArrayList<>()).add(entry);
         }
 
@@ -128,11 +127,11 @@ public class Schedule {
     /**
      * Format schedule entry for display
      */
-    public String formatEntry(ScheduleEntry entry) {
+    public String formatEntry(CalendarEvent entry) {
         return String.format("%s: %s - %s (%d min) - %s",
                 entry.getDate(),
-                entry.getStart(),
-                entry.getEnd(),
+                entry.getStartTime(),
+                entry.getEndTime(),
                 entry.getWorkMinutes(),
                 entry.getTitle()
         );
@@ -141,14 +140,14 @@ public class Schedule {
     /**
      * Get schedule summary statistics
      */
-    public ScheduleSummary getScheduleSummary(List<ScheduleEntry> entries) {
+    public ScheduleSummary getScheduleSummary(List<CalendarEvent> entries) {
         int totalEntries = entries.size();
         int totalMinutes = entries.stream()
-                .mapToInt(ScheduleEntry::getWorkMinutes)
+                .mapToInt(CalendarEvent::getWorkMinutes)
                 .sum();
 
         long uniqueTasks = entries.stream()
-                .map(ScheduleEntry::getId)
+                .map(CalendarEvent::getId)
                 .distinct()
                 .count();
 

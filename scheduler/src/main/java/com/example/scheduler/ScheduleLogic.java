@@ -8,6 +8,7 @@ import java.time.LocalTime;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 @Service
@@ -125,30 +126,30 @@ public class ScheduleLogic {
 //            }
 //        }
 //    }
-private void placeTasks(List<TimeBlock> blocks, List<Task> tasks, java.util.Map<UUID, Integer> remainingMinutes) {
-    for (Task task : tasks) {
-        int remaining = remainingMinutes.getOrDefault(task.getId(), task.getEstimatedMinutes());
-        int remainingBlocks = (int) Math.ceil(remaining / (double) BLOCK_MINUTES);
+    private void placeTasks(List<TimeBlock> blocks, List<Task> tasks, Map<UUID, Integer> remainingMinutes) {
+        for (Task task : tasks) {
+            int remaining = remainingMinutes.getOrDefault(task.getId(), task.getEstimatedMinutes());
+            int remainingBlocks = (int) Math.ceil(remaining / (double) BLOCK_MINUTES);
 
-        for (TimeBlock block : blocks) {
-            if (remainingBlocks == 0) break;
-            if (block.isBlocked() || block.getTaskId() != null) continue;
+            for (TimeBlock block : blocks) {
+                if (remainingBlocks == 0) break;
+                if (block.isBlocked() || block.getTaskId() != null) continue;
 
-            block.setTaskId(task.getId());
-            remainingBlocks--;
+                block.setTaskId(task.getId());
+                remainingBlocks--;
+            }
+
+            remainingMinutes.put(task.getId(), remainingBlocks * BLOCK_MINUTES);
         }
-
-        remainingMinutes.put(task.getId(), remainingBlocks * BLOCK_MINUTES);
     }
-}
 
 
-    private List<ScheduleEntry> buildScheduleEntries(
+    private List<CalendarEvent> buildScheduleEntries(
             LocalDate date,
             List<TimeBlock> blocks,
             List<Task> prioritizedTasks
     ) {
-        List<ScheduleEntry> entries = new ArrayList<>();
+        List<CalendarEvent> entries = new ArrayList<>();
 
         TimeBlock currentStart = null;
         UUID currentTaskId = null;
@@ -203,12 +204,13 @@ private void placeTasks(List<TimeBlock> blocks, List<Task> tasks, java.util.Map<
 
         return entries;
     }
-    private ScheduleEntry createEntry(
-            LocalDate date,
-            LocalTime start,
-            LocalTime end,
-            UUID taskId,
-            List<Task> tasks
+
+    private CalendarEvent createEntry(
+        LocalDate date,
+        LocalTime start,
+        LocalTime end,
+        UUID taskId,
+        List<Task> tasks
     ) {
         Task task = tasks.stream()
                 .filter(t -> t.getId().equals(taskId))
@@ -217,29 +219,19 @@ private void placeTasks(List<TimeBlock> blocks, List<Task> tasks, java.util.Map<
 
         int minutes = (int) Duration.between(start, end).toMinutes();
 
-        return new ScheduleEntry(
+        return new CalendarEvent(
                 date,
                 start,
                 end,
-                taskId,
-                task.getName(),
-                minutes
+                task.getName()
         );
     }
 
-    public List<ScheduleEntry> buildDailySchedule(
-            LocalDate date,
-            LocalTime workStart,
-            LocalTime workEnd,
-            List<Task> prioritizedTasks,
-            List<CalendarEvent> events
-    ) {
+    public List<CalendarEvent> buildDailySchedule(LocalDate date, LocalTime workStart, LocalTime workEnd,
+                                                  List<Task> prioritizedTasks, List<CalendarEvent> events) {
 
         List<Task> tasks = taskManager.getIncompleteTasks();
-//        System.out.println("Incomplete tasks found: " + tasks.size());
-//        tasks.forEach(t -> System.out.println(t.getName() + " minutes=" + t.getEstimatedMinutes() + " done=" + t.isDone()));
-//
-        java.util.Map<UUID, Integer> remaining = new java.util.HashMap<>();
+        Map<UUID, Integer> remaining = new java.util.HashMap<>();
         for (Task t : tasks) remaining.put(t.getId(), t.getEstimatedMinutes());
 
         List<TimeBlock> blocks = generateDailyBlocks(workStart, workEnd);
@@ -257,7 +249,7 @@ private void placeTasks(List<TimeBlock> blocks, List<Task> tasks, java.util.Map<
         return buildScheduleEntries(date, blocks, incompleteTasks);
     }
 
-    /*public List<ScheduleEntry> buildWeeklySchedule(
+    /*public List<CalendarEvent> buildWeeklySchedule(
             LocalDate weekStart,
             LocalTime workStart,
             LocalTime workEnd,
@@ -267,7 +259,7 @@ private void placeTasks(List<TimeBlock> blocks, List<Task> tasks, java.util.Map<
 //        System.out.println("Incomplete tasks found: " + tasks.size());
 //        tasks.forEach(t -> System.out.println(t.getName() + " minutes=" + t.getEstimatedMinutes() + " done=" + t.isDone()));
 //
-        List<ScheduleEntry> weeklyEntries = new ArrayList<>();
+        List<CalendarEvent> weeklyEntries = new ArrayList<>();
 
         // Get prioritized tasks ONCE
         List<Task> tasks = taskManager.getIncompleteTasks();
@@ -296,11 +288,11 @@ private void placeTasks(List<TimeBlock> blocks, List<Task> tasks, java.util.Map<
 
         return weeklyEntries;
     }*/
-    public List<ScheduleEntry> buildWeeklySchedule(LocalDate weekStart, LocalTime workStart, LocalTime workEnd, List<CalendarEvent> events) {
-        List<ScheduleEntry> weeklyEntries = new ArrayList<>();
+    public List<CalendarEvent> buildWeeklySchedule(LocalDate weekStart, LocalTime workStart, LocalTime workEnd, List<CalendarEvent> events) {
+        List<CalendarEvent> weeklyEntries = new ArrayList<>();
         List<Task> tasks = taskManager.getIncompleteTasks();
 
-        java.util.Map<UUID, Integer> remaining = new java.util.HashMap<>();
+        Map<UUID, Integer> remaining = new java.util.HashMap<>();
         for (Task t : tasks) remaining.put(t.getId(), t.getEstimatedMinutes());
 
         for (int i = 0; i < 7; i++) {
@@ -318,50 +310,6 @@ private void placeTasks(List<TimeBlock> blocks, List<Task> tasks, java.util.Map<
         }
 
         return weeklyEntries;
-    }
-
-
-
-
-    // ===== ScheduleEntry =====
-    static class ScheduleEntry {
-        private LocalDate date;
-        private LocalTime start;
-        private LocalTime end;
-        private UUID id;
-        private String title;
-        private Integer workMinutes;
-
-        public ScheduleEntry() {}
-
-        public ScheduleEntry(LocalDate date, LocalTime start, LocalTime end, UUID id,
-                             String title, Integer workMinutes) {
-            this.date = date;
-            this.start = start;
-            this.end = end;
-            this.id = id;
-            this.title = title;
-            this.workMinutes = workMinutes;
-        }
-
-        // Getters and Setters
-        public LocalDate getDate() { return date; }
-        public void setDate(LocalDate date) { this.date = date; }
-
-        public LocalTime getStart() { return start; }
-        public void setStart(LocalTime start) { this.start = start; }
-
-        public LocalTime getEnd() { return end; }
-        public void setEnd(LocalTime end) { this.end = end; }
-
-        public UUID getId() { return id; }
-        public void setId(UUID id) { this.id = id; }
-
-        public String getTitle() { return title; }
-        public void setTitle(String title) { this.title = title; }
-
-        public Integer getWorkMinutes() { return workMinutes; }
-        public void setWorkMinutes(Integer workMinutes) { this.workMinutes = workMinutes; }
     }
 
 }
