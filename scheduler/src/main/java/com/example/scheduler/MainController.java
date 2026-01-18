@@ -19,6 +19,7 @@ public class MainController {
 
     @Autowired
     private TaskRepository taskRepository;
+    private ScheduleLogic scheduleLogic;
 
     // home page, displaying the tasks
     @GetMapping("/")

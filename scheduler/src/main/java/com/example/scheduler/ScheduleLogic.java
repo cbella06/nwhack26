@@ -1,5 +1,7 @@
 package com.example.scheduler;
 
+import org.springframework.stereotype.Service;
+
 import javax.management.loading.PrivateClassLoader;
 import java.time.Duration;
 import java.time.LocalTime;
@@ -8,6 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+@Service
 public class ScheduleLogic {
     private static final int BLOCK_MINUTES = 15;
     private TaskManager taskManager;
