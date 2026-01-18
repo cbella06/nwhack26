@@ -1,5 +1,5 @@
 # Scheduler
-*Made for [**NWHacks 2026**](https://devpost.com/software/aaa-0rg8hm) - 24-hour Hackathon*
+*Made for [**nwHacks 2026**](https://devpost.com/software/aaa-0rg8hm) - 24-hour Hackathon*
 
 A productivity website that will auto-generate a calendar based on the user's scheduled events, productivity, personalization settings, and task details.
 
