@@ -72,16 +72,25 @@ public class ProfileController {
 
     @PostMapping("/profile/import")
     public String handleFileUpload(@RequestParam("file") MultipartFile file, Model model) {
+        // THIS SHOULD BE THE FIRST LINE
+        System.out.println("DEBUG: handleFileUpload triggered! File name: " + file.getOriginalFilename());
+
         if (file.isEmpty()) {
+            System.out.println("DEBUG: File is empty.");
             return "redirect:/profile?error=empty";
         }
+
         try {
-            InputStream inputStream = file.getInputStream();
-            List<CalendarEvent> importedEvents = icsParser.parseICSStream(inputStream);
+            calendarEventRepository.deleteAll();
+            List<CalendarEvent> importedEvents = icsParser.parseICSStream(file.getInputStream());
+            System.out.println("DEBUG: Parser found " + importedEvents.size() + " events.");
+
             for (CalendarEvent event : importedEvents) {
                 calendarEventRepository.save(event);
             }
-        } catch (IOException e) {
+        } catch (Exception e) {
+            // DO NOT leave this empty. This is why nothing prints.
+            System.err.println("CRITICAL ERROR DURING IMPORT:");
             e.printStackTrace();
         }
         return "redirect:/profile";

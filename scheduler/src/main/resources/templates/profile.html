@@ -70,29 +70,25 @@
                         (Morning: 05:00–11:59, Afternoon: 12:00–16:59, Evening: 17:00–20:59, Night: 21:00–04:59)
                     </small>
 
-                    <form th:action="@{/profile/import}" method="post" enctype="multipart/form-data">
-                        <div class="input-group">
-                            <input type="file" name="file" class="form-control" accept=".ics">
-                            <button class="btn btn-outline-primary" type="submit">Import ICS</button>
-                        </div>
-                    </form>
-
-                    <!-- Fixed rules (display only, not editable) -->
-                    <h6 class="mt-4">Schedule Rules </h6>
-                    <ul class="text-muted mb-0">
-                        <li>Work chunk: <b>45 min</b></li>
-                        <li>Break after each chunk: <b>15 min</b></li>
-                        <li>Max work per day: <b>5 hours</b> (300 minutes)</li>
-                    </ul>
-
-                    <div class="text-center mt-4">
-                        <button type="submit" class="button">Save Profile</button>
-                    </div>
-
-
-
                 </form>
 
+                <form th:action="@{/profile/import}" method="post" enctype="multipart/form-data">
+                    <div class="input-group">
+                        <input type="file" name="file" class="form-control" accept=".ics">
+                        <button class="btn btn-outline-primary" type="submit">Import ICS</button>
+                    </div>
+                </form>
+                <!-- Fixed rules (display only, not editable) -->
+                <h6 class="mt-4">Schedule Rules </h6>
+                <ul class="text-muted mb-0">
+                    <li>Work chunk: <b>45 min</b></li>
+                    <li>Break after each chunk: <b>15 min</b></li>
+                    <li>Max work per day: <b>5 hours</b> (300 minutes)</li>
+                </ul>
+
+                <div class="text-center mt-4">
+                    <button type="submit" class="button">Save Profile</button>
+                </div>
             </div>
         </div>
     </div>

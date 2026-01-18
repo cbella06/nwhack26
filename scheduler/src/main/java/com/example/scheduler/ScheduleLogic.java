@@ -1,5 +1,6 @@
 package com.example.scheduler;
 
+import com.example.scheduler.database.CalendarEventRepository;
 import org.springframework.stereotype.Service;
 
 import java.time.Duration;
@@ -63,6 +64,9 @@ public class ScheduleLogic {
             List<TimeBlock> blocks,
             List<CalendarEvent> events
     ) {
+        System.out.println("--- DEBUG: applyCalendarEvents ---");
+        System.out.println("Target Date: " + date);
+        System.out.println("Total Events in List: " + events.size());
         for (CalendarEvent event : events) {
             if (!event.getDate().equals(date)) continue;
 
@@ -222,9 +226,6 @@ private void placeTasks(List<TimeBlock> blocks, List<Task> tasks, java.util.Map<
                 minutes
         );
     }
-
-
-
 
     public List<ScheduleEntry> buildDailySchedule(
             LocalDate date,
