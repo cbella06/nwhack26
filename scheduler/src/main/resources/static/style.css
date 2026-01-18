@@ -32,7 +32,11 @@ body {
 
 /* General Page Styling */
 body {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); /* Deep Purple/Blue gradient */
+    background: linear-gradient(
+        135deg,
+        #eaf2ff 0%,
+        #dbe8ff 100%
+      );
     background-attachment: fixed;
     min-height: 100vh;
     font-family: 'Inter', -apple-system, sans-serif;
@@ -86,10 +90,40 @@ strong {
 
 /* Navbar Customization (Assuming fragments :: navbar uses .navbar) */
 .navbar {
-    border-radius: 0 0 20px 20px;
-    margin-bottom: 30px;
+    border-radius: 999px;   /* fully rounded */
+      margin: 20px;
+      padding: 12px 24px;
     box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+      background-color: #243356 !important; /* navy blue */
+
 }
+
+.navbar .navbar-brand,
+.navbar .nav-link {
+  display: flex;
+  align-items: center;
+  line-height: 1;
+}
+
+.nav-brand {
+  font-family: 'Sigmar One', cursive;
+  font-weight: 400;
+  letter-spacing: 0.6px;
+  font-size: 1.5rem;
+}
+
+.nav-item-text {
+  font-family: 'Sigmar One', cursive; /* same as scheduler */
+    font-size: 0.85rem;                 /* SAME size as now */
+    font-weight: 400;                  /* Sigmar One default */
+    color: white !important;
+  letter-spacing: 0.2px;
+}
+
+.nav-item-text:hover {
+  opacity: 0.85;
+}
+
 
 body {
     display: flex;

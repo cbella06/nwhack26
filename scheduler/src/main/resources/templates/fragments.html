@@ -1,23 +1,24 @@
 <nav th:fragment="navbar" class="navbar navbar-expand navbar-dark bg-dark">
-  <div class="container d-flex justify-content-between">
+    <div class="container d-flex justify-content-between align-items-center">
 
-    <div class="d-flex align-items-center">
-      <a class="navbar-brand me-4" th:href="@{/}">
-        <i class="fa-solid fa-clock-rotate-left me-2"></i>scheduler
-      </a>
+        <div class="d-flex align-items-center">
+            <a class="navbar-brand me-4 nav-brand" th:href="@{/}">
+                <i class="fa-solid fa-clock-rotate-left me-2"></i>scheduler
+            </a>
 
-      <ul class="navbar-nav flex-row">
-        <li class="nav-item me-3">
-          <a class="nav-link" th:href="@{/tasks}">Tasks</a>
-        </li>
-      </ul>
+            <ul class="navbar-nav flex-row">
+                <li class="nav-item me-3">
+                    <a class="nav-link nav-item-text" th:href="@{/tasks}">Tasks</a>
+                </li>
+            </ul>
+        </div>
+
+        <ul class="navbar-nav">
+            <li class="nav-item">
+                <!-- 👇 this is the key change -->
+                <a class="nav-link nav-item-text" th:href="@{/profile}">Profile</a>
+            </li>
+        </ul>
+
     </div>
-
-    <ul class="navbar-nav">
-      <li class="nav-item">
-        <a class="nav-link" th:href="@{/profile}">Profile</a>
-      </li>
-    </ul>
-
-  </div>
 </nav>
