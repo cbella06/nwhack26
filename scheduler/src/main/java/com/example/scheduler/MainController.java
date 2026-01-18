@@ -27,7 +27,7 @@ public class MainController {
     @Autowired private CalendarEventRepository calendarEventRepository;
     @Autowired private ScheduleLogic scheduleLogic;
     @Autowired private UserProfileRepository userProfileRepository;
-
+    @Autowired private TaskManager taskManager;
 
     @GetMapping("/")
     public String index(Model model) {
@@ -117,4 +117,10 @@ public class MainController {
         return "schedule";
     }
 
+    // Clear all tasks
+    @PostMapping("/tasks/clear")
+    public String clearTasks() {
+        taskManager.clearAllTasks();
+        return "redirect:/tasks";
+    }
 }
