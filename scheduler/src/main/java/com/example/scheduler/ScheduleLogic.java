@@ -50,7 +50,6 @@ public class ScheduleLogic {
         return blocks;
     }
 
-    //
     private void applyCalendarEvents(
             LocalDate date,
             List<TimeBlock> blocks,
@@ -59,6 +58,7 @@ public class ScheduleLogic {
         for (CalendarEvent event : events) {
             if (!event.getDate().equals(date)) continue;
 
+            //event block
             for (TimeBlock block : blocks) {
                 LocalTime blockStart = block.getStart();
                 LocalTime blockEnd = blockStart.plusMinutes(BLOCK_MINUTES);
@@ -74,83 +74,150 @@ public class ScheduleLogic {
         }
     }
 
+    private void applyBreaks(List<TimeBlock> blocks) {
+        int count = 0;
+        for (TimeBlock block: blocks){
+            if(block.isBlocked()) {
+                count = 0;
+                continue;
+            }
+            count++;
+            if(count==4){
+                block.setBlocked(true);
+                block.setBreakBlock(true);
+                count=0;
+            }
+        }
+    }
 
-    /**
-     * Schedule one task with breaks
-     * @param date
-     * @param startTime start time of the task
-     * @param totalWorkMinutes of this task
-     * @param taskId of the task
-     * @param title
-     * @return a list of ScheduleEntry of this specific task
-     */
-    public List<ScheduleEntry> scheduleTaskWithBreaks(LocalDate date, LocalTime startTime,
-                                                      int totalWorkMinutes, UUID taskId, String title) {
-        List<ScheduleEntry> result = new ArrayList<>();
+    private void placeTasks(List<TimeBlock> blocks, List<Task> tasks){
+        for (Task task : tasks) {
 
-        LocalTime currentTime = startTime;
-        int remaining = totalWorkMinutes;
+            int remainingBlocks = task.getEstimatedMinutes() / BLOCK_MINUTES;
 
-        while (remaining > 0) {
-            int workThisBlock = Math.min(3*BLOCK_MINUTES, remaining);
+            for (TimeBlock block : blocks) {
+                if (remainingBlocks == 0) break;
+                if (block.isBlocked()) continue;
+                if (block.getTaskId() != null) continue;
 
-            LocalTime workEnd = currentTime.plusMinutes(workThisBlock);
+                block.setTaskId(task.getId());
+                remainingBlocks--;
+            }
+            if (remainingBlocks > 0) {
+                System.out.println(
+                        "WARNING: Task \"" + task.getName() +
+                                "\" could not be fully scheduled (" +
+                                remainingBlocks * BLOCK_MINUTES + " minutes left)"
+                );
+            }
+        }
+    }
 
-            ScheduleEntry entry = new ScheduleEntry(date, currentTime, workEnd, taskId, title, workThisBlock);
+    private List<ScheduleEntry> buildScheduleEntries(
+            LocalDate date,
+            List<TimeBlock> blocks,
+            List<Task> prioritizedTasks
+    ) {
+        List<ScheduleEntry> entries = new ArrayList<>();
 
-            result.add(entry);
+        TimeBlock currentStart = null;
+        UUID currentTaskId = null;
 
-            remaining -= workThisBlock;
-            currentTime = workEnd;
+        for (TimeBlock block : blocks) {
 
-            if (remaining > 0) {
-                currentTime = currentTime.plusMinutes(BLOCK_MINUTES);
+            if (block.getTaskId() == null) {
+                if (currentStart != null) {
+                    entries.add(createEntry(
+                            date,
+                            currentStart.getStart(),
+                            block.getStart(),
+                            currentTaskId,
+                            prioritizedTasks
+                    ));
+                    currentStart = null;
+                    currentTaskId = null;
+                }
+                continue;
+            }
+
+            // New task or first task
+            if (currentTaskId == null || !block.getTaskId().equals(currentTaskId)) {
+
+                // Close previous entry
+                if (currentStart != null) {
+                    entries.add(createEntry(
+                            date,
+                            currentStart.getStart(),
+                            block.getStart(),
+                            currentTaskId,
+                            prioritizedTasks
+                    ));
+                }
+
+                currentStart = block;
+                currentTaskId = block.getTaskId();
             }
         }
 
-        return result;
-    }
-
-    //checking if two time period is overlaps to each other
-    private boolean overlaps(
-            LocalTime start1, LocalTime end1,
-            LocalTime start2, LocalTime end2
-    ) {
-        return start1.isBefore(end2) && start2.isBefore(end1);
-    }
-
-  
-
-
-
-    // ===== TimeSlot =====
-    class TimeSlot {
-//        private LocalDate date;
-        private LocalTime start;
-        private LocalTime end;
-        private Double productivity;
-
-        public TimeSlot() {}
-
-        public TimeSlot(LocalTime start, LocalTime end, Double productivity) {
-//            this.date = date;
-            this.start = start;
-            this.end = end;
-            this.productivity = productivity;
+        // Close final entry
+        if (currentStart != null) {
+            TimeBlock lastBlock = blocks.get(blocks.size() - 1);
+            entries.add(createEntry(
+                    date,
+                    currentStart.getStart(),
+                    lastBlock.getStart().plusMinutes(BLOCK_MINUTES),
+                    currentTaskId,
+                    prioritizedTasks
+            ));
         }
 
-        // Getters and Setters
-
-        public LocalTime getStart() { return start; }
-        public void setStart(LocalTime start) { this.start = start; }
-
-        public LocalTime getEnd() { return end; }
-        public void setEnd(LocalTime end) { this.end = end; }
-
-        public Double getProductivity() { return productivity; }
-        public void setProductivity(Double productivity) { this.productivity = productivity; }
-
+        return entries;
     }
+    private ScheduleEntry createEntry(
+            LocalDate date,
+            LocalTime start,
+            LocalTime end,
+            UUID taskId,
+            List<Task> tasks
+    ) {
+        Task task = tasks.stream()
+                .filter(t -> t.getId().equals(taskId))
+                .findFirst()
+                .orElseThrow();
+
+        int minutes = (int) Duration.between(start, end).toMinutes();
+
+        return new ScheduleEntry(
+                date,
+                start,
+                end,
+                taskId,
+                task.getName(),
+                minutes
+        );
+    }
+
+
+
+
+    public List<ScheduleEntry> buildDailySchedule(
+            LocalDate date,
+            LocalTime workStart,
+            LocalTime workEnd,
+            List<Task> prioritizedTasks,
+            List<CalendarEvent> events
+    ) {
+        List<TimeBlock> blocks = generateDailyBlocks(workStart, workEnd);
+        applyCalendarEvents(date, blocks, events);
+        applyBreaks(blocks);
+
+        List<Task> incompleteTasks = new ArrayList<>();
+        incompleteTasks = TaskManager.getIncompleteTasks();
+        placeTasks(blocks, incompleteTasks);
+
+        return buildScheduleEntries(date, blocks, prioritizedTasks);
+    }
+
 
     // ===== ScheduleEntry =====
     class ScheduleEntry {
