@@ -15,7 +15,8 @@ public class CalendarEvent {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private UUID id;
-    private Boolean fixedEvent = false;
+
+    private Boolean fixedEvent = false;  // Keep as Boolean for JPA
 
     private LocalDate date;
     private LocalTime startTime;
@@ -25,19 +26,13 @@ public class CalendarEvent {
 
     public CalendarEvent() {}
 
-    /**
-     * Calendar event constructor. Automatically generates a ID and workMinutes
-     * @param date event date
-     * @param startTime event start time
-     * @param endTime event end time
-     * @param title title of the event.
-     */
     public CalendarEvent(LocalDate date, LocalTime startTime, LocalTime endTime, String title) {
         this.date = date;
         this.startTime = startTime;
         this.endTime = endTime;
         this.title = title;
         this.workMinutes = Math.abs(Math.toIntExact(Duration.between(startTime, endTime).toMinutes()));
+        this.fixedEvent = false;  // Initialize here
     }
 
     public CalendarEvent(LocalDate date, LocalTime startTime, LocalTime endTime, String title, int workMinutes) {
@@ -46,8 +41,8 @@ public class CalendarEvent {
         this.endTime = endTime;
         this.title = title;
         this.workMinutes = workMinutes;
+        this.fixedEvent = false;  // Initialize here
     }
-
 
     // Getters and Setters
     public LocalDate getDate() { return date; }
@@ -62,7 +57,7 @@ public class CalendarEvent {
     public String getTitle() { return title; }
     public void setTitle(String title) { this.title = title; }
 
-    public int  getWorkMinutes() { return workMinutes; }
+    public int getWorkMinutes() { return workMinutes; }
     public void setWorkMinutes(Integer workMinutes) { this.workMinutes = workMinutes; }
 
     public UUID getId() { return this.id; }
@@ -71,12 +66,21 @@ public class CalendarEvent {
     public LocalTime getStart() { return startTime; }
     public LocalTime getEnd() { return endTime; }
 
+    // Fixed event methods - CHANGED to return Boolean not boolean
     public void setAsFixedEvent() {
         this.fixedEvent = true;
     }
+
+    public Boolean getFixedEvent() {  // Standard getter name
+        return fixedEvent != null ? fixedEvent : false;
+    }
+
+    public void setFixedEvent(Boolean fixedEvent) {  // Standard setter
+        this.fixedEvent = fixedEvent;
+    }
+
+    // Alternative: keep isFixedEvent but make sure it handles null
     public boolean isFixedEvent() {
-        return fixedEvent;
+        return fixedEvent != null && fixedEvent;
     }
 }
-
-
