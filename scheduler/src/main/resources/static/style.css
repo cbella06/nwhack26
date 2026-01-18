@@ -180,4 +180,29 @@ body {
   box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
 }
 
+.section-header {
+  font-family: "Fredoka", sans-serif;
+  font-size: 1.15rem;
+  font-weight: 500;
+  color: #5f6fa6;
+  margin-bottom: 1rem;
+}
+
+.small-header {
+  font-family: "Fredoka", sans-serif;
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: #5f6fa6;
+  margin-bottom: 0.25rem;
+}
+
+.value-text {
+  font-size: 0.8rem;
+  color: #7a8599;
+}
+
+.form-range {
+  accent-color: #566da3; /* matches your button gradient */
+}
+
 

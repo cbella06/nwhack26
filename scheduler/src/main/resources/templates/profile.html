@@ -5,11 +5,9 @@
     <title>Profile • Scheduler</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" th:href="@{/style.css}">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500&family=Sigmar+One&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,200..1000;1,200..1000&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500&family=Sigmar+One&family=Nunito:wght@400;600&display=swap" rel="stylesheet">
 </head>
+
 <body>
 <div th:replace="~{fragments :: navbar}"></div>
 
@@ -17,74 +15,92 @@
     <div class="row justify-content-center">
         <div class="col-md-10 col-lg-7">
             <div class="card scheduler-card p-4 shadow-lg">
-                <h4 class="mb-3 text-center">Profile Settings</h4>
 
-                <!-- SAVE PROFILE FORM -->
-                <form th:action="@{/profile/save}" method="post">
+                <h4 class="mb-4 text-center">Profile Settings</h4>
 
-                    <h6 class="mt-2">Working Window</h6>
-                    <div class="row g-3">
+                <!-- ================= SAVE PROFILE FORM ================= -->
+                <form id="profileSaveForm" th:action="@{/profile/save}" method="post">
+
+                    <h5 class="section-header">Working Window</h5>
+                    <div class="row g-3 mb-4">
                         <div class="col-md-6">
-                            <label class="form-label">Work start</label>
+                            <div class="small-header">Work start</div>
                             <input type="time" class="form-control" name="workStart"
                                    th:value="${workStart != null ? workStart : '09:00'}" required>
                         </div>
+
                         <div class="col-md-6">
-                            <label class="form-label">Work end</label>
+                            <div class="small-header">Work end</div>
                             <input type="time" class="form-control" name="workEnd"
                                    th:value="${workEnd != null ? workEnd : '17:00'}" required>
                         </div>
                     </div>
 
-                    <h6 class="mt-4">Productivity Weights</h6>
-                    <div class="row g-3">
-                        <div class="col-md-3">
-                            <label class="form-label">Morning</label>
-                            <input type="number" step="0.1" min="0" class="form-control" name="morning"
-                                   th:value="${productivity != null ? productivity.morning : 1.0}" required>
+                    <h5 class="section-header">Productivity Weights</h5>
+                    <div class="row g-4">
+                        <div class="col-6 col-lg-3">
+                            <div class="small-header">Morning</div>
+                            <input type="range" class="form-range" name="morning" min="0.5" max="2" step="0.1"
+                                   th:value="${productivity != null ? productivity.morning : 1.0}"
+                                   oninput="document.getElementById('morningVal').innerText = this.value">
+                            <div class="value-text mt-1">Value: <span id="morningVal"
+                                                                      th:text="${productivity != null ? productivity.morning : 1.0}">1.0</span></div>
                         </div>
-                        <div class="col-md-3">
-                            <label class="form-label">Afternoon</label>
-                            <input type="number" step="0.1" min="0" class="form-control" name="afternoon"
-                                   th:value="${productivity != null ? productivity.afternoon : 1.0}" required>
+
+                        <div class="col-6 col-lg-3">
+                            <div class="small-header">Afternoon</div>
+                            <input type="range" class="form-range" name="afternoon" min="0.5" max="2" step="0.1"
+                                   th:value="${productivity != null ? productivity.afternoon : 1.0}"
+                                   oninput="document.getElementById('afternoonVal').innerText = this.value">
+                            <div class="value-text mt-1">Value: <span id="afternoonVal"
+                                                                      th:text="${productivity != null ? productivity.afternoon : 1.0}">1.0</span></div>
                         </div>
-                        <div class="col-md-3">
-                            <label class="form-label">Evening</label>
-                            <input type="number" step="0.1" min="0" class="form-control" name="evening"
-                                   th:value="${productivity != null ? productivity.evening : 1.0}" required>
+
+                        <div class="col-6 col-lg-3">
+                            <div class="small-header">Evening</div>
+                            <input type="range" class="form-range" name="evening" min="0.5" max="2" step="0.1"
+                                   th:value="${productivity != null ? productivity.evening : 1.0}"
+                                   oninput="document.getElementById('eveningVal').innerText = this.value">
+                            <div class="value-text mt-1">Value: <span id="eveningVal"
+                                                                      th:text="${productivity != null ? productivity.evening : 1.0}">1.0</span></div>
                         </div>
-                        <div class="col-md-3">
-                            <label class="form-label">Night</label>
-                            <input type="number" step="0.1" min="0" class="form-control" name="night"
-                                   th:value="${productivity != null ? productivity.night : 1.0}" required>
+
+                        <div class="col-6 col-lg-3">
+                            <div class="small-header">Night</div>
+                            <input type="range" class="form-range" name="night" min="0.5" max="2" step="0.1"
+                                   th:value="${productivity != null ? productivity.night : 1.0}"
+                                   oninput="document.getElementById('nightVal').innerText = this.value">
+                            <div class="value-text mt-1">Value: <span id="nightVal"
+                                                                      th:text="${productivity != null ? productivity.night : 1.0}">1.0</span></div>
                         </div>
                     </div>
 
                     <small class="text-muted d-block mt-2">
                         1.0 = normal, &gt; 1.0 = more productive, &lt; 1.0 = less productive.
                     </small>
-
-                    <div class="text-center mt-4">
-                        <button type="submit" class="button">Save Profile</button>
-                    </div>
                 </form>
 
-                <!-- IMPORT ICS FORM (separate form) -->
-                <h6 class="mt-4">Import Calendar Events</h6>
-                <form th:action="@{/profile/import}" method="post" enctype="multipart/form-data" class="mt-3">
+                <!-- ================= IMPORT ICS ================= -->
+                <h5 class="section-header mt-5">Import Calendar Events</h5>
+                <form th:action="@{/profile/import}" method="post" enctype="multipart/form-data" class="mt-3 mb-5">
                     <div class="input-group">
                         <input type="file" name="file" class="form-control" accept=".ics" required>
                         <button class="btn btn-outline-primary" type="submit">Import ICS</button>
                     </div>
                 </form>
 
-                <!-- Rules (not a form) -->
-                <h6 class="mt-4">Schedule Rules</h6>
+                <!-- ================= RULES ================= -->
+                <h6 class="small-header">Schedule Rules</h6>
                 <ul class="text-muted mb-0">
                     <li>Work chunk: <b>45 min</b></li>
                     <li>Break after each chunk: <b>15 min</b></li>
                     <li>Max work per day: <b>5 hours</b> (300 minutes)</li>
                 </ul>
+
+                <!-- ================= SAVE BUTTON AT VERY BOTTOM ================= -->
+                <div class="text-center mt-4">
+                    <button type="submit" class="button" form="profileSaveForm">Save Profile</button>
+                </div>
 
             </div>
         </div>
