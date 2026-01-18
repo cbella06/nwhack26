@@ -29,16 +29,17 @@
                     </div>
                 </div>
 
-                <div class="text-center mt-4">
+                <div class="text-center mt-1 d-flex flex-column align-items-center gap-2">
                     <button type="button" class="button" data-bs-toggle="modal" data-bs-target="#addTaskModal">
                         <i class="fa-solid fa-plus me-2"></i>Add New Task
                     </button>
 
                     <form th:action="@{/tasks/clear}" method="post"
                           onsubmit="return confirm('Are you sure you want to delete all tasks? This cannot be undone.');">
-                        <button type="submit" class="btn btn-sm btn-outline-danger border-0">
+                        <button type="submit" class="btn btn-sm btn-outline-secondary border-0 mt-2">
                             <i class="fa-solid fa-trash-can me-1"></i> Clear All Tasks
                         </button>
+
                     </form>
                 </div>
             </div>
