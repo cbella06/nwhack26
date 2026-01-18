@@ -11,6 +11,10 @@ import org.springframework.web.bind.annotation.PostMapping;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
+import java.util.Map;
+import java.util.LinkedHashMap;
+import java.util.stream.Collectors;
+
 
 @Controller
 public class MainController {
@@ -71,7 +75,16 @@ public class MainController {
         List<ScheduleLogic.ScheduleEntry> entries =
                 scheduleLogic.buildWeeklySchedule(weekStart, workStart, workEnd, blockedEvents);
 
-        model.addAttribute("entries", entries);
+        Map<LocalDate, List<ScheduleLogic.ScheduleEntry>> entriesByDate =
+                entries.stream()
+                        .collect(Collectors.groupingBy(
+                                ScheduleLogic.ScheduleEntry::getDate,
+                                LinkedHashMap::new,
+                                Collectors.toList()
+                        ));
+
+        model.addAttribute("entriesByDate", entriesByDate);
+//        model.addAttribute("entries", entries);
         model.addAttribute("weekStart", weekStart);
         return "schedule";
     }

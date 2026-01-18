@@ -29,12 +29,52 @@
 
 
                 <!-- If no entries -->
-                <div th:if="${#lists.isEmpty(entries)}" class="alert alert-warning text-center">
+                <div th:if="${#maps.isEmpty(entriesByDate)}" class="alert alert-warning text-center">
                     No scheduled items yet.
                 </div>
 
 
-                <!-- Schedule entries -->
+                <div th:each="day : ${entriesByDate}">
+                    <div class="mb-3">
+
+                        <!-- Date header -->
+                        <h5 class="day-title mb-3"
+                            th:text="${#temporals.format(day.key, 'EEEE - MMM d')}">
+                            Monday - Jan 19
+                        </h5>
+
+                        <!-- Entries for that day -->
+                        <div th:each="entry : ${day.value}"
+                             class="list-group mb-2">
+
+                            <div class="list-group-item"
+                                 th:classappend="
+                ${entry.title == 'BREAK'}
+                ? 'list-group-item-secondary'
+                : 'list-group-item-light'
+             ">
+
+                                <div class="d-flex justify-content-between">
+                                    <strong th:text="${entry.title == 'BREAK'
+                    ? 'Break'
+                    : entry.title}">
+                                    </strong>
+
+                                    <small class="text-muted"
+                                           th:text="${entry.workMinutes + ' min'}">
+                                    </small>
+                                </div>
+
+                                <small class="text-muted"
+                                       th:text="${entry.start + ' - ' + entry.end}">
+                                </small>
+
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+                <!-- Schedule entries
                 <ul class="list-group" th:if="${!#lists.isEmpty(entries)}">
 
                     <li th:each="entry : ${entries}"
@@ -67,7 +107,7 @@
 
                     </li>
 
-                </ul>
+                </ul>-->
 
 
                 <div class="text-center mt-4">
