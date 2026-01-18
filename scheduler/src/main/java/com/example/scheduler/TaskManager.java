@@ -12,7 +12,7 @@ import java.util.stream.Collectors;
 public class TaskManager {
 
     @Autowired
-    private static TaskRepository taskRepository;
+    private TaskRepository taskRepository;
 
     // ===== HTML Form Submission Handlers =====
 
@@ -179,7 +179,7 @@ public class TaskManager {
      * Uses EARLIEST_DUE as default tie-breaker for MVP
      * MAINTAINED THE SAME AS BEFORE - just gets data from database
      */
-    public static List<Task> getIncompleteTasks() {
+    public List<Task> getIncompleteTasks() {
         LocalDate today = LocalDate.now();
         return taskRepository.findByDoneFalse().stream()  // Changed: get from DB instead of list
                 .sorted((t1, t2) -> {

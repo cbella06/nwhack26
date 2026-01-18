@@ -26,10 +26,6 @@ public class Schedule {
     @Autowired
     private TaskManager taskManager;
 
-    public Schedule() {
-        this.scheduleLogic = new ScheduleLogic();
-    }
-
     /**
      * Generate complete schedule for display on the schedule page
      * For MVP: uses hardcoded work hours (can be parameterized later)
