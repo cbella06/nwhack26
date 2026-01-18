@@ -65,5 +65,10 @@ public class CalendarEvent {
     public void setWorkMinutes(Integer workMinutes) { this.workMinutes = workMinutes; }
 
     public UUID getId() { return this.id; }
+
+    // ALIAS METHODS for Thymeleaf templates
+    public LocalTime getStart() { return startTime; }
+    public LocalTime getEnd() { return endTime; }
 }
+
 
