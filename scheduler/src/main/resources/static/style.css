@@ -73,9 +73,9 @@ body {
 
 /* Typography Improvements */
 h4 {
-    font-weight: 700;
+    font-family: "Fredoka", sans-serif;
+    font-weight: 550;
     color: #5f6fa6;
-    letter-spacing: -0.5px;
 }
 
 strong {
@@ -146,7 +146,7 @@ body {
     border-radius: 999px;
     font-weight: 600;
     cursor: pointer;
-    box-shadow: 0 10px 24px rgba(47, 63, 102, 0.35);
+    box-shadow: 0 6px 16px rgba(47, 63, 102, 0.35);
     text-transform: capitalize;
 }
 

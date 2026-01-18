@@ -237,26 +237,58 @@ public class ScheduleLogic {
         return buildScheduleEntries(date, blocks, incompleteTasks);
     }
 
-    public List<CalendarEvent> buildWeeklySchedule(
-            LocalDate weekStart,
-            LocalTime workStart,
-            LocalTime workEnd,
-            List<CalendarEvent> blockedEvents
-    ) {
+    public List<CalendarEvent> buildWeeklySchedule(LocalDate weekStart,
+                                                   LocalTime workStart,
+                                                   LocalTime workEnd,
+                                                   List<CalendarEvent> blockedEvents) {
+
         List<CalendarEvent> allEntries = new ArrayList<>();
 
+        // fetch prioritized tasks ONCE for the whole week
+        List<Task> tasks = taskManager.getIncompleteTasks();
+
+        // track remaining work per task in 15-min blocks
+        java.util.Map<UUID, Integer> remainingBlocks = new java.util.LinkedHashMap<>();
+        for (Task t : tasks) {
+            remainingBlocks.put(t.getId(), Math.max(0, t.getEstimatedMinutes() / BLOCK_MINUTES));
+        }
+
         for (int i = 0; i < 7; i++) {
-            LocalDate currentDate = weekStart.plusDays(i);
-            List<CalendarEvent> dailyEntries = buildDailySchedule(
-                    currentDate,
-                    workStart,
-                    workEnd,
-                    new ArrayList<>(),  // prioritizedTasks - not used since we get from taskManager
-                    blockedEvents
-            );
-            allEntries.addAll(dailyEntries);
+            LocalDate date = weekStart.plusDays(i);
+
+            List<TimeBlock> blocks = generateDailyBlocks(workStart, workEnd);
+            applyCalendarEvents(date, blocks, blockedEvents);
+            applyBreaks(blocks);
+
+            // place tasks using the remaining map (spill across days)
+            placeTasksWithRemaining(blocks, tasks, remainingBlocks);
+
+            allEntries.addAll(buildScheduleEntries(date, blocks, tasks));
         }
 
         return allEntries;
     }
+
+
+    private void placeTasksWithRemaining(List<TimeBlock> blocks,
+                                         List<Task> tasks,
+                                         java.util.Map<UUID, Integer> remainingBlocks) {
+
+        for (Task task : tasks) {
+            int left = remainingBlocks.getOrDefault(task.getId(), 0);
+            if (left <= 0) continue;
+
+            for (TimeBlock block : blocks) {
+                if (left == 0) break;
+                if (block.isBlocked()) continue;
+                if (block.getTaskId() != null) continue;
+
+                block.setTaskId(task.getId());
+                left--;
+            }
+
+            remainingBlocks.put(task.getId(), left);
+        }
+    }
+
 }
