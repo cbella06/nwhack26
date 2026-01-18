@@ -98,29 +98,46 @@ public class ScheduleLogic {
         }
     }
 
-    private void placeTasks(List<TimeBlock> blocks, List<Task> tasks){
-        for (Task task : tasks) {
+//    private void placeTasks(List<TimeBlock> blocks, List<Task> tasks){
+//        for (Task task : tasks) {
+//
+//            int remainingBlocks = task.getEstimatedMinutes() / BLOCK_MINUTES;
+//
+//            for (TimeBlock block : blocks) {
+//                if (remainingBlocks == 0) break;
+//                if (block.isBlocked()) continue;
+//                if (block.getTaskId() != null) continue;
+//
+//                block.setTaskId(task.getId());
+//                remainingBlocks--;
+//            }
+//            //task.setEstimatedMinutes(remainingBlocks * BLOCK_MINUTES);
+//            if (remainingBlocks > 0) {
+//                System.out.println(
+//                        "WARNING: Task \"" + task.getName() +
+//                                "\" could not be fully scheduled (" +
+//                                remainingBlocks * BLOCK_MINUTES + " minutes left)"
+//                );
+//            }
+//        }
+//    }
+private void placeTasks(List<TimeBlock> blocks, List<Task> tasks, java.util.Map<UUID, Integer> remainingMinutes) {
+    for (Task task : tasks) {
+        int remaining = remainingMinutes.getOrDefault(task.getId(), task.getEstimatedMinutes());
+        int remainingBlocks = (int) Math.ceil(remaining / (double) BLOCK_MINUTES);
 
-            int remainingBlocks = task.getEstimatedMinutes() / BLOCK_MINUTES;
+        for (TimeBlock block : blocks) {
+            if (remainingBlocks == 0) break;
+            if (block.isBlocked() || block.getTaskId() != null) continue;
 
-            for (TimeBlock block : blocks) {
-                if (remainingBlocks == 0) break;
-                if (block.isBlocked()) continue;
-                if (block.getTaskId() != null) continue;
-
-                block.setTaskId(task.getId());
-                remainingBlocks--;
-            }
-            //task.setEstimatedMinutes(remainingBlocks * BLOCK_MINUTES);
-            if (remainingBlocks > 0) {
-                System.out.println(
-                        "WARNING: Task \"" + task.getName() +
-                                "\" could not be fully scheduled (" +
-                                remainingBlocks * BLOCK_MINUTES + " minutes left)"
-                );
-            }
+            block.setTaskId(task.getId());
+            remainingBlocks--;
         }
+
+        remainingMinutes.put(task.getId(), remainingBlocks * BLOCK_MINUTES);
     }
+}
+
 
     private List<ScheduleEntry> buildScheduleEntries(
             LocalDate date,
@@ -216,10 +233,14 @@ public class ScheduleLogic {
             List<Task> prioritizedTasks,
             List<CalendarEvent> events
     ) {
-//        List<Task> tasks = taskManager.getIncompleteTasks();
+
+        List<Task> tasks = taskManager.getIncompleteTasks();
 //        System.out.println("Incomplete tasks found: " + tasks.size());
 //        tasks.forEach(t -> System.out.println(t.getName() + " minutes=" + t.getEstimatedMinutes() + " done=" + t.isDone()));
 //
+        java.util.Map<UUID, Integer> remaining = new java.util.HashMap<>();
+        for (Task t : tasks) remaining.put(t.getId(), t.getEstimatedMinutes());
+
         List<TimeBlock> blocks = generateDailyBlocks(workStart, workEnd);
         applyCalendarEvents(date, blocks, events);
         applyBreaks(blocks);
@@ -230,12 +251,12 @@ public class ScheduleLogic {
 
         List<Task> incompleteTasks = new ArrayList<>();
         incompleteTasks = taskManager.getIncompleteTasks();
-        placeTasks(blocks, incompleteTasks);
+        placeTasks(blocks, incompleteTasks, remaining);
 
         return buildScheduleEntries(date, blocks, incompleteTasks);
     }
 
-    public List<ScheduleEntry> buildWeeklySchedule(
+    /*public List<ScheduleEntry> buildWeeklySchedule(
             LocalDate weekStart,
             LocalTime workStart,
             LocalTime workEnd,
@@ -273,7 +294,31 @@ public class ScheduleLogic {
         }
 
         return weeklyEntries;
+    }*/
+    public List<ScheduleEntry> buildWeeklySchedule(LocalDate weekStart, LocalTime workStart, LocalTime workEnd, List<CalendarEvent> events) {
+        List<ScheduleEntry> weeklyEntries = new ArrayList<>();
+        List<Task> tasks = taskManager.getIncompleteTasks();
+
+        java.util.Map<UUID, Integer> remaining = new java.util.HashMap<>();
+        for (Task t : tasks) remaining.put(t.getId(), t.getEstimatedMinutes());
+
+        for (int i = 0; i < 7; i++) {
+            LocalDate date = weekStart.plusDays(i);
+
+            boolean allDone = remaining.values().stream().allMatch(m -> m <= 0);
+            if (allDone) break;
+
+            List<TimeBlock> blocks = generateDailyBlocks(workStart, workEnd);
+            applyCalendarEvents(date, blocks, events);
+            applyBreaks(blocks);
+
+            placeTasks(blocks, tasks, remaining);
+            weeklyEntries.addAll(buildScheduleEntries(date, blocks, tasks));
+        }
+
+        return weeklyEntries;
     }
+
 
 
 
