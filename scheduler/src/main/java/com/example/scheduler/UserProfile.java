@@ -1,12 +1,14 @@
 package com.example.scheduler;
 
+import org.springframework.stereotype.Component;
+
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
 import java.util.UUID;
 import java.util.ArrayList;
 
-
+@Component
 public class UserProfile {
 
     private String username;

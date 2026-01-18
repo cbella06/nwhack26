@@ -1,11 +1,16 @@
 package com.example.scheduler;
 
+import com.example.scheduler.database.CalendarEventRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.time.LocalTime;
 import java.util.List;
 
@@ -14,6 +19,11 @@ public class ProfileController {
 
     // MVP: in-memory single profile (controller is a singleton bean)
     private final UserProfile userProfile = new UserProfile();
+
+    @Autowired
+    private CalendarEventRepository calendarEventRepository;
+    @Autowired
+    private ICSParser icsParser;
 
     @GetMapping("/profile")
     public String profilePage(Model model) {
@@ -59,4 +69,22 @@ public class ProfileController {
 
         return "redirect:/profile";
     }
+
+    @PostMapping("/profile/import")
+    public String handleFileUpload(@RequestParam("file") MultipartFile file, Model model) {
+        if (file.isEmpty()) {
+            return "redirect:/profile?error=empty";
+        }
+        try {
+            InputStream inputStream = file.getInputStream();
+            List<CalendarEvent> importedEvents = icsParser.parseICSStream(inputStream);
+            for (CalendarEvent event : importedEvents) {
+                calendarEventRepository.save(event);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return "redirect:/profile";
+    }
+
 }

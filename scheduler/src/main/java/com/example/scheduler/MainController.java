@@ -1,19 +1,22 @@
 package com.example.scheduler;
 
+import com.example.scheduler.database.CalendarEventRepository;
+import com.example.scheduler.database.TaskRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.List;
 import java.util.Set;
 
@@ -23,22 +26,15 @@ public class MainController {
     @Autowired
     private TaskRepository taskRepository;
     @Autowired
+    private CalendarEventRepository calendarEventRepository;
+    @Autowired
     private ScheduleLogic scheduleLogic;
 
     // home page, displaying the tasks
     @GetMapping("/")
     public String index(Model model) {
-
-//        Iterable<Task> tasks = taskRepository.findAll();
-//
-////        List<TaskTest> tasks = Arrays.asList(
-////            new TaskTest("nwHacks Pitch", "2026-01-17 10:30:00"),
-////            new TaskTest("Lunch with Team", "2026-01-17 12:30:00"),
-////            new TaskTest("Code Review", "2026-01-17 15:00:00")
-////        );
-//
-//        // attribute name used in HTML
-//        model.addAttribute("tasks", tasks);
+        Iterable<CalendarEvent> events = calendarEventRepository.findAll();
+        model.addAttribute("event", events);
 
         return "index";
     };
@@ -46,7 +42,6 @@ public class MainController {
     @GetMapping("/tasks")
     public String tasks(Model model){
         Iterable<Task> tasks = taskRepository.findAll();
-        // attribute name used in HTML
         model.addAttribute("tasks", tasks);
         return "tasks";
     }
@@ -64,7 +59,7 @@ public class MainController {
     @PostMapping("/tasks/add")
     public String addNewTask(Task task) {
         taskRepository.save(task);
-        return "redirect:/";
+        return "redirect:/tasks";
     }
 
     @GetMapping("/schedule") public String schedule(Model model) { List<ScheduleLogic.CalendarEvent> events = List.of();

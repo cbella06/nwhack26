@@ -30,7 +30,7 @@
                     <h6 class="mt-2">Working Window</h6>
                     <div class="row g-3">
                         <div class="col-md-6">
-                            <label class="form-label">Work start</label>
+                            <label class="form-label">Work startTime</label>
                             <input type="time" class="form-control" name="workStart"
                                    th:value="${workStart != null ? workStart : '09:00'}" required>
                         </div>
@@ -70,6 +70,13 @@
                         (Morning: 05:00–11:59, Afternoon: 12:00–16:59, Evening: 17:00–20:59, Night: 21:00–04:59)
                     </small>
 
+                    <form th:action="@{/profile/import}" method="post" enctype="multipart/form-data">
+                        <div class="input-group">
+                            <input type="file" name="file" class="form-control" accept=".ics">
+                            <button class="btn btn-outline-primary" type="submit">Import ICS</button>
+                        </div>
+                    </form>
+
                     <!-- Fixed rules (display only, not editable) -->
                     <h6 class="mt-4">Schedule Rules </h6>
                     <ul class="text-muted mb-0">
@@ -81,6 +88,8 @@
                     <div class="text-center mt-4">
                         <button type="submit" class="button">Save Profile</button>
                     </div>
+
+
 
                 </form>
 

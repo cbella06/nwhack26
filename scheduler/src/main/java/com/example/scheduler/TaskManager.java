@@ -1,5 +1,6 @@
 package com.example.scheduler;
 
+import com.example.scheduler.database.TaskRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
