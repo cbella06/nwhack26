@@ -16,13 +16,13 @@ public class UserProfile {
     }
 
     private String username;
-    private UUID userId;
+//    private UUID userId;
     private List<WorkingWindow> workingWindows;
     private Productivity productivity;
     private TieBreakerRule tieBreakerRule = TieBreakerRule.EARLIEST_DUE;
 
     public UserProfile() {
-        this.userId = UUID.randomUUID();
+//        this.userId = UUID.randomUUID();
         this.workingWindows = new ArrayList<>();
         this.productivity = new Productivity();
     }
@@ -30,7 +30,7 @@ public class UserProfile {
     public UserProfile(String username, List<WorkingWindow> workingWindows,
                        Productivity productivity, TieBreakerRule tieBreakerRule) {
         this.username = username;
-        this.userId = UUID.randomUUID();
+//        this.userId = UUID.randomUUID();
         this.workingWindows = (workingWindows != null)
                 ? workingWindows
                 : new ArrayList<>();
@@ -46,8 +46,8 @@ public class UserProfile {
     public String getUsername() { return username; }
     public void setUsername(String username) { this.username = username; }
 
-    public UUID getUserId() { return userId; }
-    public void setUserId(UUID userId) { this.userId = userId; }
+//    public UUID getUserId() { return userId; }
+//    public void setUserId(UUID userId) { this.userId = userId; }
 
     public List<WorkingWindow> getWorkingWindows() { return workingWindows; }
     public void setWorkingWindows(List<WorkingWindow> workingWindows) { this.workingWindows = workingWindows; }

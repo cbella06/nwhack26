@@ -8,7 +8,7 @@ import java.util.UUID;
 public class Task {
 
     private UUID id; // generated elsewhere (store/service)
-    private int userId;
+//    private int userId;
     private String name;
     // Allow null → treated as end of week by scheduler
     private LocalDateTime dueDateTime;

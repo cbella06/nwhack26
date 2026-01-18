@@ -1,0 +1,121 @@
+package com.example.scheduler;
+
+import net.fortuna.ical4j.data.CalendarBuilder;
+import net.fortuna.ical4j.model.Calendar;
+import net.fortuna.ical4j.model.Component;
+import net.fortuna.ical4j.model.component.VEvent;
+import net.fortuna.ical4j.model.property.DtStart;
+import net.fortuna.ical4j.model.property.DtEnd;
+import net.fortuna.ical4j.model.property.Summary;
+
+import java.io.FileInputStream;
+import java.io.InputStream;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.ZoneId;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
+import com.example.scheduler.ScheduleLogic.CalendarEvent;
+
+public class ICSParser {
+
+    /**
+     * Parse an ICS file and extract calendar events
+     * @param filePath Path to the .ics file
+     * @return List of CalendarEvent objects
+     */
+    public List<CalendarEvent> parseICSFile(String filePath) {
+        List<CalendarEvent> events = new ArrayList<>();
+
+        try (InputStream input = new FileInputStream(filePath)) {
+            CalendarBuilder builder = new CalendarBuilder();
+            Calendar calendar = builder.build(input);
+
+            // Get all VEVENT components
+            for (Object component : calendar.getComponents(Component.VEVENT)) {
+                VEvent event = (VEvent) component;
+
+                // Extract event details
+                String title = getEventTitle(event);
+                LocalDateTime startDateTime = getEventStart(event);
+                LocalDateTime endDateTime = getEventEnd(event);
+
+                if (startDateTime != null && endDateTime != null) {
+                    // Convert to CalendarEvent
+                    CalendarEvent calEvent = new CalendarEvent(
+                            startDateTime.toLocalDate(),
+                            startDateTime.toLocalTime(),
+                            endDateTime.toLocalTime(),
+                            title
+                    );
+                    events.add(calEvent);
+                }
+            }
+
+        } catch (Exception e) {
+            System.err.println("Error parsing ICS file: " + e.getMessage());
+            e.printStackTrace();
+        }
+
+        return events;
+    }
+
+    /**
+     * Get event title/summary
+     */
+    private String getEventTitle(VEvent event) {
+        Summary summary = event.getSummary();
+        return summary != null ? summary.getValue() : "Untitled Event";
+    }
+
+    /**
+     * Get event start time
+     */
+    private LocalDateTime getEventStart(VEvent event) {
+        DtStart dtStart = event.getStartDate();
+        if (dtStart == null) return null;
+
+        Date startDate = dtStart.getDate();
+        return convertToLocalDateTime(startDate);
+    }
+
+    /**
+     * Get event end time
+     */
+    private LocalDateTime getEventEnd(VEvent event) {
+        DtEnd dtEnd = event.getEndDate();
+        if (dtEnd == null) return null;
+
+        Date endDate = dtEnd.getDate();
+        return convertToLocalDateTime(endDate);
+    }
+
+    /**
+     * Convert java.util.Date to LocalDateTime
+     */
+    private LocalDateTime convertToLocalDateTime(Date date) {
+        return date.toInstant()
+                .atZone(ZoneId.systemDefault())
+                .toLocalDateTime();
+    }
+
+    /**
+     * Parse ICS file and filter events within a date range
+     */
+    public List<CalendarEvent> parseICSFileForDateRange(String filePath,
+                                                        LocalDate startDate,
+                                                        LocalDate endDate) {
+        List<CalendarEvent> allEvents = parseICSFile(filePath);
+
+        // Filter events within the date range
+        return allEvents.stream()
+                .filter(event -> {
+                    LocalDate eventDate = event.getDate();
+                    return !eventDate.isBefore(startDate) && !eventDate.isAfter(endDate);
+                })
+                .toList();
+    }
+}

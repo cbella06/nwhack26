@@ -24,6 +24,7 @@ dependencies {
 	developmentOnly 'org.springframework.boot:spring-boot-devtools'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+    implementation 'org.mnode.ical4j:ical4j:3.2.14'
 }
 tasks.named('test') {
 	useJUnitPlatform()
