@@ -38,10 +38,11 @@
                     <div class="mb-3">
 
                         <!-- Date header -->
-                        <h5 class="day-title mb-3"
-                            th:text="${#temporals.format(day.key, 'EEEE - MMM d')}">
+                        <div class="text-muted fs-6 mt-4 mb-2">
+                            <span th:text="${#temporals.format(day.key, 'EEEE - MMM d')}">
                             Monday - Jan 19
-                        </h5>
+                            </span>
+                        </div>
 
                         <!-- Entries for that day -->
                         <div th:each="entry : ${day.value}"

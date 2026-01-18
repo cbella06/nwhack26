@@ -30,17 +30,32 @@
                         View Full Weekly Schedule
                     </a>
                 </div>
-                <ul class="list-group" th:if="${!#lists.isEmpty(todayEntries)}">
-                    <li th:each="entry : ${todayEntries}" class="list-group-item">
-                        <div>
-                            <strong th:text="${entry.title}">Task</strong><br>
-                            <small class="text-muted">
-                                <span th:text="${entry.start + ' - ' + entry.end}">09:00 - 09:15</span>
-                                • <span th:text="${entry.workMinutes + ' min'}">15 min</span>
-                            </small>
+
+                <div th:if="${!#lists.isEmpty(todayEntries)}">
+
+                    <div th:each="entry, iter : ${todayEntries}">
+
+                        <!-- Hour divider (only when hour changes) -->
+                        <div th:if="${iter.index == 0
+                             or entry.start.hour != todayEntries[iter.index - 1].start.hour}"
+                             class="text-muted small mt-4 mb-2">
+                            ── <span th:text="${#temporals.format(entry.start , 'h a')}">9 AM</span>
                         </div>
-                    </li>
-                </ul>
+
+
+                        <!-- Task block -->
+                        <div class="list-group-item">
+                            <strong th:text="${entry.title}">Task</strong>
+                            <div class="text-muted small">
+                                <span th:text="${entry.start + ' - ' + entry.end}">09:15 - 09:45</span>
+                                • <span th:text="${entry.workMinutes + ' min'}">30 min</span>
+                            </div>
+                        </div>
+
+                    </div>
+
+                </div>
+
 
                 <div th:if="${#lists.isEmpty(todayEntries)}" class="text-muted text-center mt-3">
                     No events scheduled for today.
