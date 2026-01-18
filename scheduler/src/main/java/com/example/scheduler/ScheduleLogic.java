@@ -1,5 +1,6 @@
 package com.example.scheduler;
 
+import java.time.Duration;
 import java.time.LocalTime;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -8,6 +9,71 @@ import java.util.UUID;
 
 public class ScheduleLogic {
     private static final int BLOCK_MINUTES = 15;
+
+    class TimeBlock {
+        private LocalTime start;
+        private boolean blocked;      // calendar events
+        private boolean breakBlock;
+        private UUID taskId;          // null if free
+
+        public TimeBlock(LocalTime start) {
+            this.start = start;
+            this.blocked = false;
+            this.breakBlock = false;
+            this.taskId = null;
+        }
+
+        public LocalTime getStart() { return start; }
+        public boolean isBlocked() { return blocked; }
+        public void setBlocked(boolean blocked) { this.blocked = blocked; }
+
+        public boolean isBreakBlock() { return breakBlock; }
+        public void setBreakBlock(boolean breakBlock) { this.breakBlock = breakBlock; }
+
+        public UUID getTaskId() { return taskId; }
+        public void setTaskId(UUID taskId) { this.taskId = taskId; }
+    }
+
+    // generate the list of 15 min blocks of the day
+    private List<TimeBlock> generateDailyBlocks(
+            LocalTime workStart,
+            LocalTime workEnd
+    ) {
+        List<TimeBlock> blocks = new ArrayList<>();
+
+        LocalTime time = workStart;
+        while (time.isBefore(workEnd)) {
+            blocks.add(new TimeBlock(time));
+            time = time.plusMinutes(BLOCK_MINUTES);
+        }
+
+        return blocks;
+    }
+
+    //
+    private void applyCalendarEvents(
+            LocalDate date,
+            List<TimeBlock> blocks,
+            List<CalendarEvent> events
+    ) {
+        for (CalendarEvent event : events) {
+            if (!event.getDate().equals(date)) continue;
+
+            for (TimeBlock block : blocks) {
+                LocalTime blockStart = block.getStart();
+                LocalTime blockEnd = blockStart.plusMinutes(BLOCK_MINUTES);
+
+                boolean overlaps =
+                        blockStart.isBefore(event.getEnd()) &&
+                                blockEnd.isAfter(event.getStart());
+
+                if (overlaps) {
+                    block.setBlocked(true);
+                }
+            }
+        }
+    }
+
 
     /**
      * Schedule one task with breaks
@@ -45,6 +111,15 @@ public class ScheduleLogic {
         return result;
     }
 
+    //checking if two time period is overlaps to each other
+    private boolean overlaps(
+            LocalTime start1, LocalTime end1,
+            LocalTime start2, LocalTime end2
+    ) {
+        return start1.isBefore(end2) && start2.isBefore(end1);
+    }
+
+  
 
 
 
@@ -119,7 +194,7 @@ public class ScheduleLogic {
     }
 
     // ===== CalendarEvent (for blocked times) =====
-    class CalendarEvent {
+    static class CalendarEvent {
         private LocalDate date;
         private LocalTime start;
         private LocalTime end;
