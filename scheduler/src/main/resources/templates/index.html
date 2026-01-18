@@ -22,12 +22,6 @@
             <div class="card scheduler-card p-4 shadow-lg">
                 <h4 class="mb-3 text-center">Today's schedule</h4>
 
-                <div class="d-flex justify-content-center">
-                    <a href="/schedule" class="button">
-                        View Full Weekly Schedule
-                    </a>
-                </div>
-
                 <div th:if="${!#lists.isEmpty(todayEntries)}">
 
                     <div th:each="entry, iter : ${todayEntries}">
@@ -35,7 +29,7 @@
                         <!-- Hour divider (only when hour changes) -->
                         <div th:if="${iter.index == 0
                              or entry.start.hour != todayEntries[iter.index - 1].start.hour}"
-                             class="text-muted small mt-4 mb-2">
+                             class="text-muted small mt-3 mb-2">
                             ── <span th:text="${#temporals.format(entry.start , 'h a')}">9 AM</span>
                         </div>
 
@@ -57,6 +51,13 @@
                 <div th:if="${#lists.isEmpty(todayEntries)}" class="text-muted text-center mt-3">
                     No events scheduled for today.
                 </div>
+
+                <div class="d-flex justify-content-center mt-3">
+                    <a href="/schedule" class="button">
+                        View Full Weekly Schedule
+                    </a>
+                </div>
+
                 </div>
             </div>
     </div>

@@ -138,23 +138,27 @@ body {
 }
 
 .button {
-    display: inline-block;
-    background: linear-gradient(135deg, #3a4f7a, #566da3) !important;
-    color: white !important;
-    border: none !important;
-    padding: 10px 25px;
-    border-radius: 999px;
-    font-weight: 600;
-    cursor: pointer;
-    box-shadow: 0 6px 16px rgba(47, 63, 102, 0.35);
-    text-transform: capitalize;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #3a4f7a, #566da3);
+  color: white !important;
+  border: none;
+  padding: 10px 25px;
+  border-radius: 999px;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 6px 16px rgba(47, 63, 102, 0.35);
+  text-transform: capitalize;
+  text-decoration: none !important;
 }
 
 .button:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 14px 32px rgba(47, 63, 102, 0.45);
-    opacity: 0.9;
+  transform: translateY(-2px);
+  box-shadow: 0 14px 32px rgba(47, 63, 102, 0.45);
+  opacity: 0.9;
 }
+
 
 /* Blurs the background when modal is open */
 .modal-backdrop.show {
@@ -175,4 +179,5 @@ body {
   margin-bottom: 16px;
   box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
 }
+
 
