@@ -12,6 +12,7 @@ import java.util.List;
 @Controller
 public class MainController {
 
+    // home page, displaying the tasks
     @GetMapping("/")
     public String index(Model model) {
 
@@ -25,5 +26,15 @@ public class MainController {
         model.addAttribute("tasks", tasks);
 
         return "index";
+    };
+
+    @GetMapping("/profile")
+    public String profile() {
+        return "profile";
+    };
+
+    @GetMapping("/login")
+    public String login() {
+        return "login";
     };
 }

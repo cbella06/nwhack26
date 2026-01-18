@@ -1,0 +1,123 @@
+
+body {
+    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+    min-height: 100vh;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* Make the scheduler cards look like floating glass */
+.scheduler-card {
+    background: rgba(255, 255, 255, 0.9);
+    border: none;
+    backdrop-filter: blur(10px);
+    transition: transform 0.2s ease;
+}
+
+.scheduler-card:hover {
+    transform: translateY(-5px);
+}
+
+/* Style the badges based on time */
+.badge-upcoming {
+    background-color: #6c5ce7;
+}
+
+.list-group-item {
+    background: transparent;
+    border-left: 5px solid #6c5ce7;
+    margin-bottom: 10px;
+    border-radius: 5px !important;
+}
+
+
+/* General Page Styling */
+body {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); /* Deep Purple/Blue gradient */
+    background-attachment: fixed;
+    min-height: 100vh;
+    font-family: 'Inter', -apple-system, sans-serif;
+    color: #2d3436;
+    padding-top: 20px;
+}
+
+/* The Main Scheduler Card */
+.scheduler-card {
+    background: rgba(255, 255, 255, 0.9);
+    border: none;
+    border-radius: 20px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    backdrop-filter: blur(5px); /* Frosty glass effect */
+}
+
+/* Individual List Items */
+.list-group-item {
+    background: transparent;
+    border: none;
+    border-left: 4px solid #6c5ce7; /* Colored accent on the left */
+    margin-bottom: 12px;
+    border-radius: 8px !important;
+    transition: all 0.3s ease;
+    padding: 15px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+}
+
+.list-group-item:hover {
+    transform: scale(1.02);
+    background-color: #ffffff;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+
+/* Typography Improvements */
+h4 {
+    font-weight: 700;
+    color: #4834d4;
+    letter-spacing: -0.5px;
+}
+
+strong {
+    font-size: 1.1rem;
+    color: #2d3436;
+}
+
+.text-muted {
+    font-size: 0.85rem;
+    color: #636e72 !important;
+}
+
+/* Navbar Customization (Assuming fragments :: navbar uses .navbar) */
+.navbar {
+    border-radius: 0 0 20px 20px;
+    margin-bottom: 30px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}
+
+body {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+/* This pushes the container to the middle of the available space */
+.container.my-auto {
+    margin-top: auto !important;
+    margin-bottom: auto !important;
+}
+
+,button {
+    display: inline-block;
+    background: linear-gradient(135deg, #6c5ce7 0%, #a29bfe 100%) !important;
+    color: white !important;
+    border: none !important;
+    padding: 10px 25px;
+    border-radius: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: 0 4px 15px rgba(108, 92, 231, 0.3);
+    text-transform: capitalize;
+}
+
+.button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(108, 92, 231, 0.4);
+    opacity: 0.9;
+}
