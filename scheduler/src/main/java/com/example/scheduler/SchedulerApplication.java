@@ -8,6 +8,9 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 
+/**
+ * Main Spring Boot application
+ */
 @SpringBootApplication
 public class SchedulerApplication {
 

@@ -10,6 +10,10 @@ import java.time.LocalTime;
 import java.time.Duration;
 import java.util.UUID;
 
+/**
+ * Class that represents a Calendar event - an event with a fixed start and end time to place in the schedule.
+ * The event may be a task (scheduled event) or a fixed Event (imported from ICS)
+ */
 @Entity
 public class CalendarEvent {
     @Id
@@ -66,20 +70,12 @@ public class CalendarEvent {
     public LocalTime getStart() { return startTime; }
     public LocalTime getEnd() { return endTime; }
 
-    // Fixed event methods - CHANGED to return Boolean not boolean
     public void setAsFixedEvent() {
         this.fixedEvent = true;
     }
-
-    public Boolean getFixedEvent() {  // Standard getter name
-        return fixedEvent != null ? fixedEvent : false;
-    }
-
     public void setFixedEvent(Boolean fixedEvent) {  // Standard setter
         this.fixedEvent = fixedEvent;
     }
-
-    // Alternative: keep isFixedEvent but make sure it handles null
     public boolean isFixedEvent() {
         return fixedEvent != null && fixedEvent;
     }

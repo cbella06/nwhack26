@@ -4,6 +4,9 @@ import jakarta.persistence.*;
 import java.time.LocalTime;
 import java.util.UUID;
 
+/**
+ * Represents the User's working window, which are the hours of the day they are available to work.
+ */
 @Entity
 @Table(name = "working_windows")
 public class WorkingWindow {

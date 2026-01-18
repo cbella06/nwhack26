@@ -9,10 +9,8 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 
-import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalTime;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -20,6 +18,9 @@ import java.util.LinkedHashMap;
 import java.util.stream.Collectors;
 
 
+/**
+ * Main controller of the application. Controls the main page, schedule page and tasks screen.
+ */
 @Controller
 public class MainController {
 
