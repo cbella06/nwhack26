@@ -2,7 +2,6 @@ package com.example.scheduler;
 
 import org.springframework.stereotype.Service;
 
-import javax.management.loading.PrivateClassLoader;
 import java.time.Duration;
 import java.time.LocalTime;
 import java.time.LocalDate;
@@ -73,8 +72,8 @@ public class ScheduleLogic {
                 LocalTime blockEnd = blockStart.plusMinutes(BLOCK_MINUTES);
 
                 boolean overlaps =
-                        blockStart.isBefore(event.getEnd()) &&
-                                blockEnd.isAfter(event.getStart());
+                        blockStart.isBefore(event.getEndTime()) &&
+                                blockEnd.isAfter(event.getStartTime());
 
                 if (overlaps) {
                     block.setBlocked(true);
@@ -301,36 +300,6 @@ public class ScheduleLogic {
 
         public Integer getWorkMinutes() { return workMinutes; }
         public void setWorkMinutes(Integer workMinutes) { this.workMinutes = workMinutes; }
-    }
-
-    // ===== CalendarEvent (for blocked times) =====
-    static class CalendarEvent {
-        private LocalDate date;
-        private LocalTime start;
-        private LocalTime end;
-        private String title;
-
-        public CalendarEvent() {}
-
-        public CalendarEvent(LocalDate date, LocalTime start, LocalTime end, String title) {
-            this.date = date;
-            this.start = start;
-            this.end = end;
-            this.title = title;
-        }
-
-        // Getters and Setters
-        public LocalDate getDate() { return date; }
-        public void setDate(LocalDate date) { this.date = date; }
-
-        public LocalTime getStart() { return start; }
-        public void setStart(LocalTime start) { this.start = start; }
-
-        public LocalTime getEnd() { return end; }
-        public void setEnd(LocalTime end) { this.end = end; }
-
-        public String getTitle() { return title; }
-        public void setTitle(String title) { this.title = title; }
     }
 
 }
