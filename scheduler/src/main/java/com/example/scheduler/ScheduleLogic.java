@@ -259,7 +259,7 @@ public class ScheduleLogic {
 
 
     // ===== ScheduleEntry =====
-    class ScheduleEntry {
+    static class ScheduleEntry {
         private LocalDate date;
         private LocalTime start;
         private LocalTime end;

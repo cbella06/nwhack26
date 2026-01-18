@@ -8,18 +8,11 @@ import java.util.ArrayList;
 
 
 public class UserProfile {
-    public enum TieBreakerRule {
-        EARLIEST_DUE,
-        HIGHEST_IMPORTANCE,
-        SHORTEST_TASK,
-        LONGEST_TASK
-    }
 
     private String username;
 //    private UUID userId;
     private List<WorkingWindow> workingWindows;
     private Productivity productivity;
-    private TieBreakerRule tieBreakerRule = TieBreakerRule.EARLIEST_DUE;
 
     public UserProfile() {
 //        this.userId = UUID.randomUUID();
@@ -28,7 +21,7 @@ public class UserProfile {
     }
 
     public UserProfile(String username, List<WorkingWindow> workingWindows,
-                       Productivity productivity, TieBreakerRule tieBreakerRule) {
+                       Productivity productivity) {
         this.username = username;
 //        this.userId = UUID.randomUUID();
         this.workingWindows = (workingWindows != null)
@@ -37,9 +30,6 @@ public class UserProfile {
         this.productivity = (productivity != null)
                 ? productivity
                 : new Productivity();
-        this.tieBreakerRule = (tieBreakerRule != null)
-                ? tieBreakerRule
-                : TieBreakerRule.EARLIEST_DUE;
     }
 
     // Getters and Setters
@@ -54,10 +44,7 @@ public class UserProfile {
 
     public Productivity getProductivity() { return productivity; }
     public void setProductivity(Productivity productivity) { this.productivity = productivity; }
-
-    public TieBreakerRule getTieBreakerRule() { return tieBreakerRule; }
-    public void setTieBreakerRule(TieBreakerRule tieBreakerRule) { this.tieBreakerRule = tieBreakerRule; }
-
+    
     public class  WorkingWindow {
         private LocalTime start;
         private LocalTime end;
