@@ -9,7 +9,10 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
@@ -19,6 +22,7 @@ public class MainController {
 
     @Autowired
     private TaskRepository taskRepository;
+    @Autowired
     private ScheduleLogic scheduleLogic;
 
     // home page, displaying the tasks
@@ -63,4 +67,15 @@ public class MainController {
         return "redirect:/";
     }
 
+    @GetMapping("/schedule") public String schedule(Model model) { List<ScheduleLogic.CalendarEvent> events = List.of();
+        // empty list
+        List<ScheduleLogic.ScheduleEntry> entries = scheduleLogic.buildWeeklySchedule(
+                LocalDate.now(),
+                LocalTime.now(),
+                LocalTime.now().plusHours(24*7),
+                events );
+        model.addAttribute("entries", entries);
+        model.addAttribute("weekStart", LocalDate.now());
+
+        return "schedule"; }
 }

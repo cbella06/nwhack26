@@ -15,6 +15,10 @@ public class ScheduleLogic {
     private static final int BLOCK_MINUTES = 15;
     private TaskManager taskManager;
 
+    public ScheduleLogic(TaskManager taskManager) {
+        this.taskManager = taskManager;
+    }
+
     class TimeBlock {
         private LocalTime start;
         private boolean blocked;      // calendar events
