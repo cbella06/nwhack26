@@ -1,33 +1,23 @@
 package com.example.scheduler;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
-/**
- * TaskManager - Communicates with the task management HTML page
- * Handles all task CRUD operations and provides data for display
- */
+@Service
 public class TaskManager {
-    private List<Task> tasks;
 
-    public TaskManager() {
-        this.tasks = new ArrayList<>();
-    }
+    @Autowired
+    private TaskRepository taskRepository;
 
     // ===== HTML Form Submission Handlers =====
 
-    /**
-     * Handle new task form submission from HTML
-     * Called when user submits the "Add Task" form
-     */
     public Task createTaskFromForm(String name,
-                                   String dueDateTimeStr,  // From HTML datetime-local input
+                                   String dueDateTimeStr,
                                    int importance,
                                    int estimatedMinutes,
                                    int complexity,
@@ -38,14 +28,9 @@ public class TaskManager {
         }
 
         Task task = new Task(name, dueDateTime, importance, estimatedMinutes, complexity, tags);
-        tasks.add(task);
-        return task;
+        return taskRepository.save(task);  // Save to database
     }
 
-    /**
-     * Handle edit task form submission from HTML
-     * Called when user updates an existing task
-     */
     public boolean updateTaskFromForm(String taskIdStr,
                                       String name,
                                       String dueDateTimeStr,
@@ -55,7 +40,7 @@ public class TaskManager {
                                       Set<String> tags) {
         try {
             UUID taskId = UUID.fromString(taskIdStr);
-            Optional<Task> taskOpt = getTaskById(taskId);
+            Optional<Task> taskOpt = taskRepository.findById(taskId);
 
             if (taskOpt.isPresent()) {
                 Task task = taskOpt.get();
@@ -71,6 +56,8 @@ public class TaskManager {
                 task.setEstimatedMinutes(estimatedMinutes);
                 task.setComplexity(complexity);
                 task.setTags(tags);
+
+                taskRepository.save(task);  // Save changes to database
                 return true;
             }
         } catch (IllegalArgumentException e) {
@@ -79,17 +66,15 @@ public class TaskManager {
         return false;
     }
 
-    /**
-     * Handle task completion checkbox toggle from HTML
-     */
     public boolean toggleTaskCompletion(String taskIdStr) {
         try {
             UUID taskId = UUID.fromString(taskIdStr);
-            Optional<Task> taskOpt = getTaskById(taskId);
+            Optional<Task> taskOpt = taskRepository.findById(taskId);
 
             if (taskOpt.isPresent()) {
                 Task task = taskOpt.get();
-                task.setDone(!task.isDone());  // Toggle
+                task.setDone(!task.isDone());
+                taskRepository.save(task);  // Save to database
                 return true;
             }
         } catch (IllegalArgumentException e) {
@@ -98,14 +83,11 @@ public class TaskManager {
         return false;
     }
 
-    /**
-     * Handle task deletion from HTML
-     * Called when user clicks delete button
-     */
     public boolean deleteTaskFromHTML(String taskIdStr) {
         try {
             UUID taskId = UUID.fromString(taskIdStr);
-            return removeTask(taskId);
+            taskRepository.deleteById(taskId);  // Delete from database
+            return true;
         } catch (IllegalArgumentException e) {
             System.err.println("Invalid task ID: " + taskIdStr);
             return false;
@@ -114,42 +96,28 @@ public class TaskManager {
 
     // ===== Data Retrieval for HTML Display =====
 
-    /**
-     * Get all tasks formatted for HTML table/list display
-     */
     public List<TaskDisplayData> getTasksForDisplay() {
-        return tasks.stream()
+        return taskRepository.findAll().stream()
                 .map(this::convertToDisplayData)
                 .collect(Collectors.toList());
     }
 
-    /**
-     * Get incomplete tasks for the "To Do" view
-     */
     public List<TaskDisplayData> getIncompleteTasksForDisplay() {
-        return tasks.stream()
-                .filter(t -> !t.isDone())
+        return taskRepository.findByDoneFalse().stream()
                 .map(this::convertToDisplayData)
                 .collect(Collectors.toList());
     }
 
-    /**
-     * Get completed tasks for the "Completed" view
-     */
     public List<TaskDisplayData> getCompletedTasksForDisplay() {
-        return tasks.stream()
-                .filter(Task::isDone)
+        return taskRepository.findByDoneTrue().stream()
                 .map(this::convertToDisplayData)
                 .collect(Collectors.toList());
     }
 
-    /**
-     * Get tasks grouped by tag for filtered view
-     */
     public java.util.Map<String, List<TaskDisplayData>> getTasksGroupedByTag() {
         java.util.Map<String, List<TaskDisplayData>> grouped = new java.util.HashMap<>();
 
-        for (Task task : tasks) {
+        for (Task task : taskRepository.findAll()) {
             if (task.getTags() != null) {
                 for (String tag : task.getTags()) {
                     grouped.computeIfAbsent(tag, k -> new ArrayList<>())
@@ -161,13 +129,10 @@ public class TaskManager {
         return grouped;
     }
 
-    /**
-     * Get task by ID for editing form pre-population
-     */
     public TaskDisplayData getTaskForEdit(String taskIdStr) {
         try {
             UUID taskId = UUID.fromString(taskIdStr);
-            Optional<Task> taskOpt = getTaskById(taskId);
+            Optional<Task> taskOpt = taskRepository.findById(taskId);
             return taskOpt.map(this::convertToDisplayData).orElse(null);
         } catch (IllegalArgumentException e) {
             System.err.println("Invalid task ID: " + taskIdStr);
@@ -175,27 +140,18 @@ public class TaskManager {
         }
     }
 
-    /**
-     * Get summary statistics for dashboard display
-     */
     public TaskSummary getTaskSummary() {
-        int total = tasks.size();
-        int incomplete = (int) tasks.stream().filter(t -> !t.isDone()).count();
-        int completed = (int) tasks.stream().filter(Task::isDone).count();
-        int overdue = (int) tasks.stream()
-                .filter(t -> !t.isDone() &&
-                        t.getDueDateTime() != null &&
-                        t.getDueDateTime().isBefore(LocalDateTime.now()))
-                .count();
+        List<Task> allTasks = taskRepository.findAll();
+        int total = allTasks.size();
+        int incomplete = (int) allTasks.stream().filter(t -> !t.isDone()).count();
+        int completed = (int) allTasks.stream().filter(Task::isDone).count();
+        int overdue = (int) taskRepository.findByDoneFalseAndDueDateTimeBefore(LocalDateTime.now()).size();
 
         return new TaskSummary(total, incomplete, completed, overdue);
     }
 
     // ===== Core CRUD Operations =====
 
-    /**
-     * Add a new task
-     */
     public Task addTask(String name,
                         LocalDateTime dueDateTime,
                         int importance,
@@ -203,51 +159,37 @@ public class TaskManager {
                         int complexity,
                         Set<String> tags) {
         Task task = new Task(name, dueDateTime, importance, estimatedMinutes, complexity, tags);
-        tasks.add(task);
-        return task;
+        return taskRepository.save(task);
     }
 
-    /**
-     * Add an existing task object
-     */
     public void addTask(Task task) {
         if (task != null) {
-            tasks.add(task);
+            taskRepository.save(task);
         }
     }
 
-    /**
-     * Get all tasks (for Schedule generation)
-     */
     public List<Task> getAllTasks() {
-        return new ArrayList<>(tasks);
+        return taskRepository.findAll();
     }
 
-    /**
-     * Get a specific task by ID
-     */
     public Optional<Task> getTaskById(UUID taskId) {
-        return tasks.stream()
-                .filter(t -> t.getId().equals(taskId))
-                .findFirst();
+        return taskRepository.findById(taskId);
     }
 
     /**
      * Get all incomplete tasks sorted by priority (highest to lowest)
      * Uses EARLIEST_DUE as default tie-breaker for MVP
+     * MAINTAINED THE SAME AS BEFORE - just gets data from database
      */
     public List<Task> getIncompleteTasks() {
         LocalDate today = LocalDate.now();
-        return tasks.stream()
-                .filter(t -> !t.isDone())
+        return taskRepository.findByDoneFalse().stream()  // Changed: get from DB instead of list
                 .sorted((t1, t2) -> {
                     double p1 = t1.computePriority(today);
                     double p2 = t2.computePriority(today);
-                    int comparison = Double.compare(p2, p1); // Higher priority first
+                    int comparison = Double.compare(p2, p1);
 
-                    // Apply default tie-breaker if priorities are equal
                     if (comparison == 0) {
-                        // Default: EARLIEST_DUE
                         if (t1.getDueDateTime() == null) return 1;
                         if (t2.getDueDateTime() == null) return -1;
                         return t1.getDueDateTime().compareTo(t2.getDueDateTime());
@@ -257,42 +199,21 @@ public class TaskManager {
                 .collect(Collectors.toList());
     }
 
-    /**
-     * Get all completed tasks
-     */
     public List<Task> getCompletedTasks() {
-        return tasks.stream()
-                .filter(Task::isDone)
-                .collect(Collectors.toList());
+        return taskRepository.findByDoneTrue();
     }
 
-    /**
-     * Get tasks by tag
-     */
     public List<Task> getTasksByTag(String tag) {
-        return tasks.stream()
-                .filter(t -> t.getTags() != null && t.getTags().contains(tag))
-                .collect(Collectors.toList());
+        return taskRepository.findByTagsContaining(tag);
     }
 
-    /**
-     * Get overdue tasks
-     */
     public List<Task> getOverdueTasks() {
-        LocalDateTime now = LocalDateTime.now();
-        return tasks.stream()
-                .filter(t -> !t.isDone() &&
-                        t.getDueDateTime() != null &&
-                        t.getDueDateTime().isBefore(now))
-                .collect(Collectors.toList());
+        return taskRepository.findByDoneFalseAndDueDateTimeBefore(LocalDateTime.now());
     }
 
-    /**
-     * Get tasks sorted by priority
-     */
     public List<Task> getTasksSortedByPriority() {
         LocalDate today = LocalDate.now();
-        List<Task> sortedTasks = new ArrayList<>(tasks);
+        List<Task> sortedTasks = new ArrayList<>(taskRepository.findAll());
         sortedTasks.sort((t1, t2) -> {
             double p1 = t1.computePriority(today);
             double p2 = t2.computePriority(today);
@@ -301,58 +222,49 @@ public class TaskManager {
         return sortedTasks;
     }
 
-    /**
-     * Mark a task as complete
-     */
     public boolean markTaskComplete(UUID taskId) {
-        Optional<Task> taskOpt = getTaskById(taskId);
+        Optional<Task> taskOpt = taskRepository.findById(taskId);
         if (taskOpt.isPresent()) {
-            taskOpt.get().setDone(true);
+            Task task = taskOpt.get();
+            task.setDone(true);
+            taskRepository.save(task);
             return true;
         }
         return false;
     }
 
-    /**
-     * Mark a task as incomplete
-     */
     public boolean markTaskIncomplete(UUID taskId) {
-        Optional<Task> taskOpt = getTaskById(taskId);
+        Optional<Task> taskOpt = taskRepository.findById(taskId);
         if (taskOpt.isPresent()) {
-            taskOpt.get().setDone(false);
+            Task task = taskOpt.get();
+            task.setDone(false);
+            taskRepository.save(task);
             return true;
         }
         return false;
     }
 
-    /**
-     * Remove a task by ID
-     */
     public boolean removeTask(UUID taskId) {
-        return tasks.removeIf(t -> t.getId().equals(taskId));
+        if (taskRepository.existsById(taskId)) {
+            taskRepository.deleteById(taskId);
+            return true;
+        }
+        return false;
     }
 
-    /**
-     * Remove all completed tasks
-     */
     public int removeCompletedTasks() {
-        int initialSize = tasks.size();
-        tasks.removeIf(Task::isDone);
-        return initialSize - tasks.size();
+        List<Task> completedTasks = taskRepository.findByDoneTrue();
+        int count = completedTasks.size();
+        taskRepository.deleteAll(completedTasks);
+        return count;
     }
 
-    /**
-     * Clear all tasks
-     */
     public void clearAllTasks() {
-        tasks.clear();
+        taskRepository.deleteAll();
     }
 
-    /**
-     * Get all unique tags
-     */
     public Set<String> getAllTags() {
-        return tasks.stream()
+        return taskRepository.findAll().stream()
                 .filter(t -> t.getTags() != null)
                 .flatMap(t -> t.getTags().stream())
                 .collect(Collectors.toSet());
@@ -360,9 +272,6 @@ public class TaskManager {
 
     // ===== Helper Methods =====
 
-    /**
-     * Convert Task to display-friendly format for HTML
-     */
     private TaskDisplayData convertToDisplayData(Task task) {
         return new TaskDisplayData(
                 task.getId().toString(),
@@ -377,11 +286,8 @@ public class TaskManager {
         );
     }
 
-    // ===== Inner Classes for HTML Data Transfer =====
+    // ===== Inner Classes =====
 
-    /**
-     * Data class for displaying tasks in HTML
-     */
     public static class TaskDisplayData {
         public final String id;
         public final String name;
@@ -407,7 +313,6 @@ public class TaskManager {
             this.priority = priority;
         }
 
-        // Getters for JSON serialization or template engines
         public String getId() { return id; }
         public String getName() { return name; }
         public String getDueDateTime() { return dueDateTime; }
@@ -419,9 +324,6 @@ public class TaskManager {
         public double getPriority() { return priority; }
     }
 
-    /**
-     * Summary statistics for dashboard
-     */
     public static class TaskSummary {
         public final int total;
         public final int incomplete;

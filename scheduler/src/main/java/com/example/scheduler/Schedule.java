@@ -17,11 +17,9 @@
 // */
 //public class Schedule {
 //    private ScheduleLogic scheduleLogic;
-//    private SlotGenerationService slotGenerationService;
 //
 //    public Schedule() {
 //        this.scheduleLogic = new ScheduleLogic();
-//        this.slotGenerationService = new SlotGenerationService();
 //    }
 //
 //    /**
@@ -36,7 +34,7 @@
 //        List<ScheduleEntry> allEntries = new ArrayList<>();
 //
 //        // Step 1: Generate available time slots
-//        List<TimeSlot> availableSlots = slotGenerationService.generateSlots(
+//        List<TimeSlot> availableSlots = scheduleLogic.generateSlots(
 //                userProfile, startDate, days, blockedEvents
 //        );
 //
@@ -67,7 +65,7 @@
 //                        slot.getDate(),
 //                        slot.getStart(),
 //                        minutesToSchedule,
-//                        UUID.fromString(String.valueOf(task.getId())),
+//                        task.getId(),  // Changed: use task.getId() directly instead of converting
 //                        task.getName()
 //                );
 //
