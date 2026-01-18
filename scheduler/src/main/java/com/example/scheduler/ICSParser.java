@@ -36,54 +36,33 @@ public class ICSParser {
             CalendarBuilder builder = new CalendarBuilder();
             Calendar calendar = builder.build(input);
 
-            System.out.println("DEBUG ICSParser: Successfully built calendar");
-            System.out.println("DEBUG ICSParser: Calendar has " +
-                    calendar.getComponents(Component.VEVENT).size() +
-                    " VEVENT components");
-
+            // Get all VEVENT components
             for (Object component : calendar.getComponents(Component.VEVENT)) {
                 VEvent event = (VEvent) component;
 
-                // Skip recurring events
-                if (event.getProperty("RRULE") != null) {
-                    System.out.println("DEBUG ICSParser: Skipping recurring event");
-                    continue;
-                }
-
+                // Extract event details
                 String title = getEventTitle(event);
                 LocalDateTime startDateTime = getEventStart(event);
                 LocalDateTime endDateTime = getEventEnd(event);
 
-                System.out.println("DEBUG ICSParser: Processing event: " + title);
-                System.out.println("DEBUG ICSParser: Start: " + startDateTime);
-                System.out.println("DEBUG ICSParser: End: " + endDateTime);
-
-                if (startDateTime == null || endDateTime == null) {
-                    System.out.println("DEBUG ICSParser: Skipping - no start/end times");
-                    continue;
+                if (startDateTime != null && endDateTime != null) {
+                    // Convert to CalendarEvent
+                    CalendarEvent calEvent = new CalendarEvent(
+                            startDateTime.toLocalDate(),
+                            startDateTime.toLocalTime(),
+                            endDateTime.toLocalTime(),
+                            title
+                    );
+                    calEvent.setAsFixedEvent();
+                    events.add(calEvent);
                 }
-
-                // Create CalendarEvent from the parsed data
-                CalendarEvent calEvent = new CalendarEvent(
-                        startDateTime.toLocalDate(),    // date
-                        startDateTime.toLocalTime(),     // start time
-                        endDateTime.toLocalTime(),       // end time
-                        title                            // title
-                );
-
-                events.add(calEvent);
-                System.out.println("DEBUG ICSParser: Added event: " + title +
-                        " on " + startDateTime.toLocalDate() +
-                        " from " + startDateTime.toLocalTime() +
-                        " to " + endDateTime.toLocalTime());
             }
 
         } catch (Exception e) {
-            System.err.println("ERROR in ICSParser:");
+            System.err.println("Error parsing ICS file: " + e.getMessage());
             e.printStackTrace();
         }
 
-        System.out.println("DEBUG ICSParser: Returning " + events.size() + " total events");
         return events;
     }
 

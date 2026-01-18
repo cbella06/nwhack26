@@ -9,8 +9,10 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 
+import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.LinkedHashMap;
@@ -28,7 +30,6 @@ public class MainController {
 
     @GetMapping("/")
     public String index(Model model) {
-
         LocalDate today = LocalDate.now();
 
         UserProfile profile = userProfileRepository
@@ -54,8 +55,16 @@ public class MainController {
                 scheduleLogic.buildDailySchedule(today, workStart, workEnd, List.of(), blockedEvents);
 
 
+        todayEntries.addAll(calendarEventRepository.findByDate(LocalDate.now()));
+        todayEntries.sort(new Comparator<CalendarEvent>() {
+            @Override
+            public int compare(CalendarEvent o1, CalendarEvent o2) {
+                return Math.toIntExact(Duration.between(o2.getStartTime(),o1.getStartTime()).toMinutes());
+            }
+        });
         model.addAttribute("todayEntries", todayEntries);
         model.addAttribute("events", calendarEventRepository.findAll());
+
 
         return "index";
     }

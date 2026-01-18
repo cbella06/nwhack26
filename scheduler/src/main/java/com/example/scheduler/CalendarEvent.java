@@ -15,6 +15,7 @@ public class CalendarEvent {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private UUID id;
+    private Boolean fixedEvent = false;
 
     private LocalDate date;
     private LocalTime startTime;
@@ -36,7 +37,7 @@ public class CalendarEvent {
         this.startTime = startTime;
         this.endTime = endTime;
         this.title = title;
-        this.workMinutes = Math.toIntExact(Duration.between(startTime, endTime).toMinutes());
+        this.workMinutes = Math.abs(Math.toIntExact(Duration.between(startTime, endTime).toMinutes()));
     }
 
     public CalendarEvent(LocalDate date, LocalTime startTime, LocalTime endTime, String title, int workMinutes) {
@@ -69,6 +70,13 @@ public class CalendarEvent {
     // ALIAS METHODS for Thymeleaf templates
     public LocalTime getStart() { return startTime; }
     public LocalTime getEnd() { return endTime; }
+
+    public void setAsFixedEvent() {
+        this.fixedEvent = true;
+    }
+    public boolean isFixedEvent() {
+        return fixedEvent;
+    }
 }
 
 

@@ -44,7 +44,8 @@
 
 
                         <!-- Task block -->
-                        <div class="list-group-item">
+                        <div class="list-group-item"
+                             th:classappend="${entry.isFixedEvent} ? 'border-primary bg-light' : 'border-secondary bg-white'">
                             <strong th:text="${entry.title}">Task</strong>
                             <div class="text-muted small">
                                 <span th:text="${entry.start + ' - ' + entry.end}">09:15 - 09:45</span>
