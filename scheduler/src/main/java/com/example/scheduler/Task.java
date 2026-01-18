@@ -57,7 +57,7 @@ public class Task {
             if (D < 0) D = 0;
         } else {
             // No due date = treat as far in future (low urgency)
-            D = 365;
+            D = 7;
         }
 
         // T = Estimated time in hours
