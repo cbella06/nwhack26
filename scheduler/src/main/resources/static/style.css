@@ -1,9 +1,4 @@
 
-body {
-    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-    min-height: 100vh;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-}
 
 /* Make the scheduler cards look like floating glass */
 .scheduler-card {
@@ -32,17 +27,16 @@ body {
 
 /* General Page Styling */
 body {
-    background: linear-gradient(
-        135deg,
-        #eaf2ff 0%,
-        #dbe8ff 100%
-      );
-    background-attachment: fixed;
-    min-height: 100vh;
-    font-family: 'Inter', -apple-system, sans-serif;
-    color: #2d3436;
-    padding-top: 20px;
+  background: linear-gradient(135deg,#eaf2ff 0%,#dbe8ff 100%);
+  background-attachment: fixed;
+  min-height: 100vh;
+  font-family: 'Open Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  color: #2d3436;
+  padding-top: 20px;
+  display: flex;
+  flex-direction: column;
 }
+
 
 /* The Main Scheduler Card */
 .scheduler-card {
@@ -124,12 +118,6 @@ strong {
   opacity: 0.85;
 }
 
-
-body {
-    display: flex;
-    flex-direction: column;
-    min-height: 100vh;
-}
 
 /* This pushes the container to the middle of the available space */
 .container.my-auto {
