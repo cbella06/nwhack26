@@ -66,7 +66,7 @@
                                 </div>
 
                                 <small class="text-muted"
-                                       th:text="${entry.start + ' - ' + entry.end}">
+                                       th:text="${entry.startTime + ' - ' + entry.endTime}">
                                 </small>
 
                             </div>
@@ -74,40 +74,7 @@
 
                     </div>
                 </div>
-                <!-- Schedule entries
-                <ul class="list-group" th:if="${!#lists.isEmpty(entries)}">
 
-                    <li th:each="entry : ${entries}"
-                        class="list-group-item"
-                        th:classappend="
-            ${entry.title == 'BREAK'} ? 'list-group-item-secondary' :
-            'list-group-item-light'
-        ">
-
-                        <div class="d-flex justify-content-between">
-                            <strong th:text="${entry.title == 'BREAK'
-                ? 'Time for a 15 min break'
-                : entry.title}">
-                                Task title
-                            </strong>
-
-                            <small class="text-muted"
-                                   th:text="${entry.workMinutes + ' min'}">
-                                15 min
-                            </small>
-                        </div>
-
-                        <small class="text-muted">
-            <span th:text="${entry.start + ' - ' + entry.end}">
-                09:00 - 09:15
-            </span>
-                            •
-                            <span th:text="${entry.date}">2026-01-18</span>
-                        </small>
-
-                    </li>
-
-                </ul>-->
 
 
                 <div class="text-center mt-4">

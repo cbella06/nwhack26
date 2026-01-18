@@ -2,6 +2,7 @@ package com.example.scheduler;
 
 import com.example.scheduler.database.CalendarEventRepository;
 import com.example.scheduler.database.TaskRepository;
+import com.example.scheduler.database.UserProfileRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -22,39 +23,48 @@ public class MainController {
     @Autowired private TaskRepository taskRepository;
     @Autowired private CalendarEventRepository calendarEventRepository;
     @Autowired private ScheduleLogic scheduleLogic;
-    @Autowired private TaskManager taskManager;
+    @Autowired private UserProfileRepository userProfileRepository;
+
 
     @GetMapping("/")
     public String index(Model model) {
+
         LocalDate today = LocalDate.now();
 
-        // For now: hardcode the window (later replace with profile values)
-        LocalTime workStart = LocalTime.of(9, 0);
-        LocalTime workEnd   = LocalTime.of(23, 0);
+        UserProfile profile = userProfileRepository
+                .findByUsername("default")
+                .orElse(null);
 
-        List<CalendarEvent> blockedEvents = calendarEventRepository.findAll();
+        // fallback if profile or window doesn't exist
+        LocalTime workStart = LocalTime.of(9, 0);
+        LocalTime workEnd = LocalTime.of(17, 0);
+
+        if (profile != null && !profile.getWorkingWindows().isEmpty()) {
+            WorkingWindow w = profile.getWorkingWindows().get(0);
+            workStart = w.getStartTime();
+            workEnd = w.getEndTime();
+        }
+
+//        List<CalendarEvent> blockedEvents =
+//                toLogicEvents(calendarEventRepository.findAll());
+        List<CalendarEvent> blockedEvents =
+                calendarEventRepository.findAll();
 
         List<CalendarEvent> todayEntries =
                 scheduleLogic.buildDailySchedule(today, workStart, workEnd, List.of(), blockedEvents);
-        todayEntries.addAll(calendarEventRepository.findByDate(LocalDate.now()));
-        model.addAttribute("todayEntries", todayEntries);
 
-        // Optional: if you still want to show raw calendar events somewhere on index.html
+
+        model.addAttribute("todayEntries", todayEntries);
         model.addAttribute("events", calendarEventRepository.findAll());
 
         return "index";
     }
 
+
     @GetMapping("/tasks")
     public String tasks(Model model) {
         model.addAttribute("tasks", taskRepository.findAll());
         return "tasks";
-    }
-
-    @PostMapping("/tasks/clear")
-    public String clearTasks() {
-        taskManager.clearAllTasks();
-        return "redirect:/tasks";
     }
 
     @PostMapping("/tasks/add")
@@ -65,11 +75,26 @@ public class MainController {
 
     @GetMapping("/schedule")
     public String schedule(Model model) {
-        LocalDate weekStart = LocalDate.now();
-        LocalTime workStart = LocalTime.of(9, 0);
-        LocalTime workEnd   = LocalTime.of(23, 0);
 
-        List<CalendarEvent> blockedEvents = calendarEventRepository.findAll();
+        LocalDate weekStart = LocalDate.now();
+
+        UserProfile profile = userProfileRepository
+                .findByUsername("default")
+                .orElse(null);
+
+        LocalTime workStart = LocalTime.of(9, 0);
+        LocalTime workEnd = LocalTime.of(17, 0);
+
+        if (profile != null && !profile.getWorkingWindows().isEmpty()) {
+            WorkingWindow w = profile.getWorkingWindows().get(0);
+            workStart = w.getStartTime();
+            workEnd = w.getEndTime();
+        }
+
+//        List<CalendarEvent> blockedEvents =
+//                toLogicEvents(calendarEventRepository.findAll());
+        List<CalendarEvent> blockedEvents =
+                calendarEventRepository.findAll();
 
         List<CalendarEvent> entries =
                 scheduleLogic.buildWeeklySchedule(weekStart, workStart, workEnd, blockedEvents);
@@ -85,6 +110,19 @@ public class MainController {
         model.addAttribute("entriesByDate", entriesByDate);
 //        model.addAttribute("entries", entries);
         model.addAttribute("weekStart", weekStart);
+
         return "schedule";
     }
+
+    private List<CalendarEvent> toLogicEvents(List<CalendarEvent> dbEvents) {
+        return dbEvents.stream()
+                .map(e -> new CalendarEvent(
+                        e.getDate(),        // LocalDate
+                        e.getStartTime(),   // LocalTime
+                        e.getEndTime(),     // LocalTime
+                        e.getTitle()        // String (or whatever your field is)
+                ))
+                .toList();
+    }
+
 }

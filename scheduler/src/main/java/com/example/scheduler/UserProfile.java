@@ -1,68 +1,57 @@
 package com.example.scheduler;
 
-import org.springframework.stereotype.Component;
-
-import java.time.LocalDate;
-import java.time.LocalTime;
+import jakarta.persistence.*;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-import java.util.ArrayList;
 
-@Component
+@Entity
+@Table(name = "user_profile")
 public class UserProfile {
 
+    @Id
+    @GeneratedValue
+    private UUID id;
+
+    @Column(unique = true)
     private String username;
-//    private UUID userId;
-    private List<WorkingWindow> workingWindows;
-    private Productivity productivity;
 
-    public UserProfile() {
-//        this.userId = UUID.randomUUID();
-        this.workingWindows = new ArrayList<>();
-        this.productivity = new Productivity();
-    }
+    @OneToMany(mappedBy = "userProfile",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true)
+    private List<WorkingWindow> workingWindows = new ArrayList<>();
 
-    public UserProfile(String username, List<WorkingWindow> workingWindows,
-                       Productivity productivity) {
-        this.username = username;
-//        this.userId = UUID.randomUUID();
-        this.workingWindows = (workingWindows != null)
-                ? workingWindows
-                : new ArrayList<>();
-        this.productivity = (productivity != null)
-                ? productivity
-                : new Productivity();
-    }
+    @Embedded
+    private Productivity productivity = new Productivity();
 
-    // Getters and Setters
+    public UserProfile() {}
+
+    public UUID getId() { return id; }
+
     public String getUsername() { return username; }
     public void setUsername(String username) { this.username = username; }
 
-//    public UUID getUserId() { return userId; }
-//    public void setUserId(UUID userId) { this.userId = userId; }
-
     public List<WorkingWindow> getWorkingWindows() { return workingWindows; }
-    public void setWorkingWindows(List<WorkingWindow> workingWindows) { this.workingWindows = workingWindows; }
+
+    // KEY FIX: always set back-reference
+    public void setWorkingWindows(List<WorkingWindow> windows) {
+        this.workingWindows.clear();
+        if (windows != null) {
+            for (WorkingWindow w : windows) {
+                w.setUserProfile(this);
+                this.workingWindows.add(w);
+            }
+        }
+    }
+
+    // Optional helper (nice to use in controller)
+    public void addWorkingWindow(WorkingWindow w) {
+        w.setUserProfile(this);
+        this.workingWindows.add(w);
+    }
 
     public Productivity getProductivity() { return productivity; }
-    public void setProductivity(Productivity productivity) { this.productivity = productivity; }
-    
-    public class  WorkingWindow {
-        private LocalTime start;
-        private LocalTime end;
-
-        public WorkingWindow() {}
-
-        public WorkingWindow(LocalTime start, LocalTime end) {
-            this.start = start;
-            this.end = end;
-        }
-
-        // Getters and Setters
-        public LocalTime getStart() { return start; }
-        public void setStart(LocalTime start) { this.start = start; }
-
-        public LocalTime getEnd() { return end; }
-        public void setEnd(LocalTime end) { this.end = end; }
+    public void setProductivity(Productivity productivity) {
+        this.productivity = (productivity != null) ? productivity : new Productivity();
     }
 }

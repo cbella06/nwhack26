@@ -1,7 +1,9 @@
 package com.example.scheduler;
 
+import jakarta.persistence.Embeddable;
 import java.time.LocalTime;
 
+@Embeddable
 public class Productivity {
     private Double morning = 1.0;
     private Double afternoon = 1.0;
