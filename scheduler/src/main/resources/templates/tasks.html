@@ -22,12 +22,15 @@
 
         <div class="col-md-8 col-lg-6">
             <div class="card scheduler-card p-4 shadow-lg">
-                <h4 class="mb-3 text-center">Unscheduled Tasks</h4>
+                <h4 class="mb-3 text-center">All Tasks</h4>
 
                 <div>
-                    <div th:each="task : ${tasks}" class="task-card">
-                        <strong th:text="${task.name}">Task Name</strong><br>
-                        <small class="text-muted" th:text="${task.dueDateTime}">Task Time</small>
+                    <div th:each="task : ${tasks}" class="task-card mb-3">
+                        <strong th:text="${task.name}">Task Name</strong>
+                        <small class="text-muted d-block"
+                               th:text="|Due Date: ${#temporals.format(task.dueDateTime, 'yyyy-MM-dd')}|"></small>
+                        <small class="text-muted d-block"
+                               th:text="|Estimated time to Complete: ${task.estimatedMinutes} min|"></small>
                     </div>
                 </div>
 
