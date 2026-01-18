@@ -34,16 +34,12 @@
             "
         >
             <div class="d-flex justify-content-between">
-                <strong th:text="${entry.start} + ' - ' + ${entry.end}"></strong>
+                <strong th:text="${entry.start + ' - ' + entry.end}">09:00 - 09:15</strong>
                 <span th:text="${entry.workMinutes} + ' min'"></span>
             </div>
 
             <div class="mt-1">
-                <span th:text="
-                    ${entry.title == 'BREAK'}
-                    ? 'Time for a 15 min break'
-                    : entry.title
-                "></span>
+                <span th:text="${entry.title == 'BREAK' ? 'Time for a 15 min break' : entry.title}">Task title</span>
             </div>
         </div>
 

@@ -75,7 +75,7 @@ public class MainController {
 //        return "schedule"; }
 @GetMapping("/schedule")
 public String schedule(Model model) {
-    List<ScheduleLogic.CalendarEvent> events = List.of(); // empty list
+    List<CalendarEvent> events = List.of(); // empty list
 
     LocalDate weekStart = LocalDate.now();
     LocalTime workStart = LocalTime.of(9, 0);
