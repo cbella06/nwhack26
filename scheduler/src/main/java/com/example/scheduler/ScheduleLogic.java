@@ -2,27 +2,51 @@ package com.example.scheduler;
 
 import java.time.LocalTime;
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 public class ScheduleLogic {
-    class WorkingWindow {
-        private LocalTime start;
-        private LocalTime end;
+    private static final int BLOCK_MINUTES = 15;
 
-        public WorkingWindow() {}
+    /**
+     * Schedule one task with breaks
+     * @param date
+     * @param startTime start time of the task
+     * @param totalWorkMinutes of this task
+     * @param taskId of the task
+     * @param title
+     * @return a list of ScheduleEntry of this specific task
+     */
+    public List<ScheduleEntry> scheduleTaskWithBreaks(LocalDate date, LocalTime startTime,
+                                                      int totalWorkMinutes, UUID taskId, String title) {
+        List<ScheduleEntry> result = new ArrayList<>();
 
-        public WorkingWindow(LocalTime start, LocalTime end) {
-            this.start = start;
-            this.end = end;
+        LocalTime currentTime = startTime;
+        int remaining = totalWorkMinutes;
+
+        while (remaining > 0) {
+            int workThisBlock = Math.min(3*BLOCK_MINUTES, remaining);
+
+            LocalTime workEnd = currentTime.plusMinutes(workThisBlock);
+
+            ScheduleEntry entry = new ScheduleEntry(date, currentTime, workEnd, taskId, title, workThisBlock);
+
+            result.add(entry);
+
+            remaining -= workThisBlock;
+            currentTime = workEnd;
+
+            if (remaining > 0) {
+                currentTime = currentTime.plusMinutes(BLOCK_MINUTES);
+            }
         }
 
-        // Getters and Setters
-        public LocalTime getStart() { return start; }
-        public void setStart(LocalTime start) { this.start = start; }
-
-        public LocalTime getEnd() { return end; }
-        public void setEnd(LocalTime end) { this.end = end; }
+        return result;
     }
+
+
+
 
     // ===== TimeSlot =====
     class TimeSlot {
@@ -41,8 +65,6 @@ public class ScheduleLogic {
         }
 
         // Getters and Setters
-//        public LocalDate getDate() { return date; }
-//        public void setDate(LocalDate date) { this.date = date; }
 
         public LocalTime getStart() { return start; }
         public void setStart(LocalTime start) { this.start = start; }
@@ -52,6 +74,7 @@ public class ScheduleLogic {
 
         public Double getProductivity() { return productivity; }
         public void setProductivity(Double productivity) { this.productivity = productivity; }
+
     }
 
     // ===== ScheduleEntry =====
