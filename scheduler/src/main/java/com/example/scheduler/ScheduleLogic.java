@@ -112,7 +112,7 @@ public class ScheduleLogic {
                 block.setTaskId(task.getId());
                 remainingBlocks--;
             }
-            task.setEstimatedMinutes(remainingBlocks * BLOCK_MINUTES);
+            //task.setEstimatedMinutes(remainingBlocks * BLOCK_MINUTES);
             if (remainingBlocks > 0) {
                 System.out.println(
                         "WARNING: Task \"" + task.getName() +
@@ -217,9 +217,17 @@ public class ScheduleLogic {
             List<Task> prioritizedTasks,
             List<CalendarEvent> events
     ) {
+//        List<Task> tasks = taskManager.getIncompleteTasks();
+//        System.out.println("Incomplete tasks found: " + tasks.size());
+//        tasks.forEach(t -> System.out.println(t.getName() + " minutes=" + t.getEstimatedMinutes() + " done=" + t.isDone()));
+//
         List<TimeBlock> blocks = generateDailyBlocks(workStart, workEnd);
         applyCalendarEvents(date, blocks, events);
         applyBreaks(blocks);
+        System.out.println("Using work window: " + workStart + " -> " + workEnd);
+
+        long free = blocks.stream().filter(b -> !b.isBlocked() && b.getTaskId() == null).count();
+        System.out.println("Free blocks after calendar+breaks: " + free);
 
         List<Task> incompleteTasks = new ArrayList<>();
         incompleteTasks = taskManager.getIncompleteTasks();
@@ -234,10 +242,16 @@ public class ScheduleLogic {
             LocalTime workEnd,
             List<CalendarEvent> events
     ) {
+//        List<Task> tasks = taskManager.getIncompleteTasks();
+//        System.out.println("Incomplete tasks found: " + tasks.size());
+//        tasks.forEach(t -> System.out.println(t.getName() + " minutes=" + t.getEstimatedMinutes() + " done=" + t.isDone()));
+//
         List<ScheduleEntry> weeklyEntries = new ArrayList<>();
 
         // Get prioritized tasks ONCE
         List<Task> tasks = taskManager.getIncompleteTasks();
+
+        System.out.println("Using work window: " + workStart + " -> " + workEnd);
 
         for (int i = 0; i < 7; i++) {
             LocalDate date = weekStart.plusDays(i);
@@ -250,6 +264,8 @@ public class ScheduleLogic {
             List<TimeBlock> blocks = generateDailyBlocks(workStart, workEnd);
             applyCalendarEvents(date, blocks, events);
             applyBreaks(blocks);
+            long free = blocks.stream().filter(b -> !b.isBlocked() && b.getTaskId() == null).count();
+            System.out.println("Free blocks after calendar+breaks: " + free);
             placeTasks(blocks, tasks);
 
             weeklyEntries.addAll(

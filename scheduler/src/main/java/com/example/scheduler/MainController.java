@@ -67,15 +67,31 @@ public class MainController {
         return "redirect:/";
     }
 
-    @GetMapping("/schedule") public String schedule(Model model) { List<ScheduleLogic.CalendarEvent> events = List.of();
-        // empty list
-        List<ScheduleLogic.ScheduleEntry> entries = scheduleLogic.buildWeeklySchedule(
-                LocalDate.now(),
-                LocalTime.now(),
-                LocalTime.now().plusHours(24*7),
-                events );
-        model.addAttribute("entries", entries);
-        model.addAttribute("weekStart", LocalDate.now());
+//    @GetMapping("/schedule") public String schedule(Model model) { List<ScheduleLogic.CalendarEvent> events = List.of();
+//        // empty list
+//        List<ScheduleLogic.ScheduleEntry> entries = scheduleLogic.buildWeeklySchedule(
+//                LocalDate.now(),
+//                LocalTime.now(),
+//                LocalTime.now().plusHours(24*7),
+//                events );
+//        model.addAttribute("entries", entries);
+//        model.addAttribute("weekStart", LocalDate.now());
+//
+//        return "schedule"; }
+@GetMapping("/schedule")
+public String schedule(Model model) {
+    List<ScheduleLogic.CalendarEvent> events = List.of(); // empty list
 
-        return "schedule"; }
+    LocalDate weekStart = LocalDate.now();
+    LocalTime workStart = LocalTime.of(9, 0);
+    LocalTime workEnd   = LocalTime.of(23, 0);
+
+    List<ScheduleLogic.ScheduleEntry> entries =
+            scheduleLogic.buildWeeklySchedule(weekStart, workStart, workEnd, events);
+
+    model.addAttribute("entries", entries);
+    model.addAttribute("weekStart", weekStart);
+    return "schedule";
+}
+
 }
