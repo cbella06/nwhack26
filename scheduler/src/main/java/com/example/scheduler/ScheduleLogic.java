@@ -1,5 +1,6 @@
 package com.example.scheduler;
 
+import javax.management.loading.PrivateClassLoader;
 import java.time.Duration;
 import java.time.LocalTime;
 import java.time.LocalDate;
@@ -9,6 +10,7 @@ import java.util.UUID;
 
 public class ScheduleLogic {
     private static final int BLOCK_MINUTES = 15;
+    private TaskManager taskManager;
 
     class TimeBlock {
         private LocalTime start;
@@ -103,6 +105,7 @@ public class ScheduleLogic {
                 block.setTaskId(task.getId());
                 remainingBlocks--;
             }
+            task.setEstimatedMinutes(remainingBlocks * BLOCK_MINUTES);
             if (remainingBlocks > 0) {
                 System.out.println(
                         "WARNING: Task \"" + task.getName() +
@@ -212,11 +215,44 @@ public class ScheduleLogic {
         applyBreaks(blocks);
 
         List<Task> incompleteTasks = new ArrayList<>();
-        incompleteTasks = TaskManager.getIncompleteTasks();
+        incompleteTasks = taskManager.getIncompleteTasks();
         placeTasks(blocks, incompleteTasks);
 
-        return buildScheduleEntries(date, blocks, prioritizedTasks);
+        return buildScheduleEntries(date, blocks, incompleteTasks);
     }
+
+    public List<ScheduleEntry> buildWeeklySchedule(
+            LocalDate weekStart,
+            LocalTime workStart,
+            LocalTime workEnd,
+            List<CalendarEvent> events
+    ) {
+        List<ScheduleEntry> weeklyEntries = new ArrayList<>();
+
+        // Get prioritized tasks ONCE
+        List<Task> tasks = taskManager.getIncompleteTasks();
+
+        for (int i = 0; i < 7; i++) {
+            LocalDate date = weekStart.plusDays(i);
+
+            // Stop early if all tasks are done
+            boolean allDone = tasks.stream()
+                    .allMatch(t -> t.getEstimatedMinutes() <= 0);
+            if (allDone) break;
+
+            List<TimeBlock> blocks = generateDailyBlocks(workStart, workEnd);
+            applyCalendarEvents(date, blocks, events);
+            applyBreaks(blocks);
+            placeTasks(blocks, tasks);
+
+            weeklyEntries.addAll(
+                    buildScheduleEntries(date, blocks, tasks)
+            );
+        }
+
+        return weeklyEntries;
+    }
+
 
 
     // ===== ScheduleEntry =====
