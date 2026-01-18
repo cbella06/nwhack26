@@ -121,3 +121,15 @@ body {
     box-shadow: 0 6px 20px rgba(108, 92, 231, 0.4);
     opacity: 0.9;
 }
+
+/* Blurs the background when modal is open */
+.modal-backdrop.show {
+    backdrop-filter: blur(8px);
+    background-color: rgba(0, 0, 0, 0.4);
+}
+
+/* Ensure the modal content matches your card theme */
+.modal-content {
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 20px;
+}

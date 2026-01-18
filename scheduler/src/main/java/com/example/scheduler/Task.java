@@ -1,16 +1,24 @@
 package com.example.scheduler;
 
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import org.springframework.format.annotation.DateTimeFormat;
+
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Set;
 import java.util.UUID;
 
+@Entity
 public class Task {
 
+    @Id
     private UUID id; // generated elsewhere (store/service)
 //    private int userId;
     private String name;
     // Allow null → treated as end of week by scheduler
+
+    @DateTimeFormat
     private LocalDateTime dueDateTime;
     // 1–5 (5 = most important)
     private int importance;
