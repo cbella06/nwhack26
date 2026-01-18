@@ -49,11 +49,7 @@
                              class="list-group mb-2">
 
                             <div class="list-group-item"
-                                 th:classappend="
-                ${entry.title == 'BREAK'}
-                ? 'list-group-item-secondary'
-                : 'list-group-item-light'
-             ">
+                                 th:classappend="${entry.isFixedEvent} ? 'border-primary bg-light' : 'border-secondary bg-white'">
 
                                 <div class="d-flex justify-content-between">
                                     <strong th:text="${entry.title == 'BREAK'

@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -46,26 +47,18 @@ public class MainController {
             workEnd = w.getEndTime();
         }
 
-//        List<CalendarEvent> blockedEvents =
-//                toLogicEvents(calendarEventRepository.findAll());
+        // Finds all blocked events
         List<CalendarEvent> blockedEvents =
                 calendarEventRepository.findAll();
-
+        // Gets today's entries
         List<CalendarEvent> todayEntries =
                 scheduleLogic.buildDailySchedule(today, workStart, workEnd, List.of(), blockedEvents);
-
-
+        // Add fixed events to today's entries
         todayEntries.addAll(calendarEventRepository.findByDate(LocalDate.now()));
-        todayEntries.sort(new Comparator<CalendarEvent>() {
-            @Override
-            public int compare(CalendarEvent o1, CalendarEvent o2) {
-                return Math.toIntExact(Duration.between(o2.getStartTime(),o1.getStartTime()).toMinutes());
-            }
-        });
+        todayEntries.sort(Comparator.comparing(CalendarEvent::getStartTime));
+
         model.addAttribute("todayEntries", todayEntries);
         model.addAttribute("events", calendarEventRepository.findAll());
-
-
         return "index";
     }
 
@@ -100,13 +93,12 @@ public class MainController {
             workEnd = w.getEndTime();
         }
 
-//        List<CalendarEvent> blockedEvents =
-//                toLogicEvents(calendarEventRepository.findAll());
         List<CalendarEvent> blockedEvents =
                 calendarEventRepository.findAll();
 
         List<CalendarEvent> entries =
                 scheduleLogic.buildWeeklySchedule(weekStart, workStart, workEnd, blockedEvents);
+        entries.addAll(calendarEventRepository.findAll());
 
         Map<LocalDate, List<CalendarEvent>> entriesByDate =
                 entries.stream()
@@ -116,22 +108,13 @@ public class MainController {
                                 Collectors.toList()
                         ));
 
+        for (LocalDate day : entriesByDate.keySet()) {
+            entriesByDate.get(day).sort(Comparator.comparing(CalendarEvent::getStartTime));
+        }
         model.addAttribute("entriesByDate", entriesByDate);
-//        model.addAttribute("entries", entries);
         model.addAttribute("weekStart", weekStart);
 
         return "schedule";
-    }
-
-    private List<CalendarEvent> toLogicEvents(List<CalendarEvent> dbEvents) {
-        return dbEvents.stream()
-                .map(e -> new CalendarEvent(
-                        e.getDate(),        // LocalDate
-                        e.getStartTime(),   // LocalTime
-                        e.getEndTime(),     // LocalTime
-                        e.getTitle()        // String (or whatever your field is)
-                ))
-                .toList();
     }
 
 }
