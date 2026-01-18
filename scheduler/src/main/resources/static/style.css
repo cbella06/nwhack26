@@ -103,13 +103,13 @@ body {
     margin-bottom: auto !important;
 }
 
-,button {
+.button {
     display: inline-block;
     background: linear-gradient(135deg, #6c5ce7 0%, #a29bfe 100%) !important;
     color: white !important;
     border: none !important;
     padding: 10px 25px;
-    border-radius: 12px;
+    border-radius: 999px;
     font-weight: 600;
     cursor: pointer;
     box-shadow: 0 4px 15px rgba(108, 92, 231, 0.3);
